@@ -1066,14 +1066,25 @@ function updateNavigationButtons() {
                 updateFirebaseStatus('✅ Connected to Firebase', 'connected');
                 
                 // Listen for changes
-                database.ref('exams').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        exams = Object.values(data);
-                        exams.sort((a, b) => new Date(a.date) - new Date(b.date));
-                        renderExams();
-                    }
-                });
+                // Listen for changes
+database.ref('exams').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        exams = Object.values(data);
+        exams.sort((a, b) => new Date(a.date) - new Date(b.date));
+        renderExams();
+        
+        // Ensure navigation is created for embed mode
+        if (document.body.classList.contains('embed-mode')) {
+            setTimeout(() => {
+                updateEmbedNavigation();
+            }, 200);
+        }
+    } else {
+        exams = [];
+        renderExams();
+    }
+});
 
                 database.ref('settings').on('value', (snapshot) => {
                     const data = snapshot.val();
@@ -1174,22 +1185,29 @@ function updateNavigationButtons() {
         }
 
         function loadFromLocalStorage() {
-            try {
-                const savedExams = localStorage.getItem('exams');
-                if (savedExams) {
-                    exams = JSON.parse(savedExams);
-                    renderExams();
-                }
-
-                const savedSettings = localStorage.getItem('examSettings');
-                if (savedSettings) {
-                    settings = JSON.parse(savedSettings);
-                    applySettings();
-                }
-            } catch (e) {
-                console.error('Error loading from localStorage:', e);
+    try {
+        const savedExams = localStorage.getItem('exams');
+        if (savedExams) {
+            exams = JSON.parse(savedExams);
+            renderExams();
+            
+            // Ensure navigation is created for embed mode
+            if (document.body.classList.contains('embed-mode') && exams.length > 0) {
+                setTimeout(() => {
+                    updateEmbedNavigation();
+                }, 200);
             }
         }
+
+        const savedSettings = localStorage.getItem('examSettings');
+        if (savedSettings) {
+            settings = JSON.parse(savedSettings);
+            applySettings();
+        }
+    } catch (e) {
+        console.error('Error loading from localStorage:', e);
+    }
+}
 
         // Initialize on page load
        // Initialize on page load
@@ -1206,7 +1224,7 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     // Check embed mode FIRST
-    checkEmbedMode();  // ✅ MOVE THIS HERE
+    checkEmbedMode();
 
     // Auto-initialize Firebase with your config
     initializeFirebase(firebaseConfig);
@@ -1343,7 +1361,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 }
 
-        function renderExams() {
+       function renderExams() {
     const grid = document.getElementById('examsGrid');
     
     if (exams.length === 0) {
@@ -1353,6 +1371,11 @@ window.addEventListener('DOMContentLoaded', () => {
                 <p>Click the "➕ Add New Exam" button below to create your first exam countdown.</p>
             </div>
         `;
+        // Remove navigation if no exams
+        const navContainer = document.getElementById('embedNavigation');
+        if (navContainer) {
+            navContainer.remove();
+        }
         return;
     }
 
@@ -1364,7 +1387,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const activeClass = (isEmbedMode && index === currentExamIndex) ? 'active' : '';
         
         return `
-            <div class="exam-card shape-${settings.cardShape} ${activeClass}" data-exam-id="${exam.id}">
+            <div class="exam-card shape-${settings.cardShape} ${activeClass}" data-exam-id="${exam.id}" data-exam-index="${index}">
                 <div class="exam-header">
                     <div style="display: flex; align-items: flex-start;">
                         <div class="exam-icon">${exam.icon}</div>
@@ -1405,6 +1428,15 @@ window.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
     }).join('');
+    
+    // Add navigation for embed mode - MUST BE AFTER GRID IS RENDERED
+    if (isEmbedMode && exams.length > 0) {
+        // Small delay to ensure DOM is ready
+        setTimeout(() => {
+            updateEmbedNavigation();
+        }, 100);
+    }
+}
     
     // Add navigation for embed mode
     if (isEmbedMode) {
@@ -1598,11 +1630,7 @@ function checkEmbedMode() {
     if (urlParams.get('embed') === 'true') {
         document.body.classList.add('embed-mode');
         document.getElementById('threeDotMenu').style.display = 'block';
-        
-        // Initialize embed navigation
-        if (exams.length > 0) {
-            updateEmbedNavigation();
-        }
+        console.log('Embed mode activated'); // Debug log
     }
 }
     </script>

@@ -1205,6 +1205,9 @@ window.addEventListener('DOMContentLoaded', () => {
         appId: "1:884414746027:web:d0621f7093b6f0182156ee"
     };
 
+    // Check embed mode FIRST
+    checkEmbedMode();  // ✅ MOVE THIS HERE
+
     // Auto-initialize Firebase with your config
     initializeFirebase(firebaseConfig);
 
@@ -1219,7 +1222,6 @@ window.addEventListener('DOMContentLoaded', () => {
     updateCountdowns();
     setInterval(updateCountdowns, 1000);
     updateEmbedLink();
-    checkEmbedMode();
     
     // Set min datetime to now
     const now = new Date();

@@ -71,24 +71,17 @@
             margin-bottom: 20px;
         }
 
-        @media (max-width: 767px) {
-            .exams-grid.size-small { grid-template-columns: 1fr; }
-            .exams-grid.size-medium { grid-template-columns: 1fr; }
-            .exams-grid.size-large { grid-template-columns: 1fr; }
-        }
+       @media (max-width: 767px) {
+    .exams-grid { grid-template-columns: 1fr; }
+}
 
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .exams-grid.size-small { grid-template-columns: repeat(2, 1fr); }
-            .exams-grid.size-medium { grid-template-columns: repeat(2, 1fr); }
-            .exams-grid.size-large { grid-template-columns: 1fr; }
-        }
+@media (min-width: 768px) and (max-width: 1023px) {
+    .exams-grid { grid-template-columns: repeat(2, 1fr); }
+}
 
-        @media (min-width: 1024px) {
-            .exams-grid.size-small { grid-template-columns: repeat(3, 1fr); }
-            .exams-grid.size-medium { grid-template-columns: repeat(2, 1fr); }
-            .exams-grid.size-large { grid-template-columns: 1fr; }
-        }
-
+@media (min-width: 1024px) {
+    .exams-grid { grid-template-columns: repeat(2, 1fr); }
+}
         .exam-card {
             background: var(--theme-card);
             backdrop-filter: blur(10px);
@@ -705,7 +698,7 @@ body.embed-mode {
             <div class="firebase-status" id="firebaseStatus">🔄 Connecting to Firebase...</div>
         </div>
 
-        <div class="exams-grid size-medium" id="examsGrid">
+        <div class="exams-grid" id="examsGrid">
             <div class="empty-state">
                 <h2>No Exams Yet! 📝</h2>
                 <p>Click the "➕ Add New Exam" button below to create your first exam countdown.</p>

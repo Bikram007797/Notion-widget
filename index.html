@@ -574,6 +574,120 @@
         body[data-digit-style="bold"] { --digit-weight: 700; --digit-style: normal; }
         body[data-digit-style="light"] { --digit-weight: 300; --digit-style: normal; }
         body[data-digit-style="italic"] { --digit-weight: 400; --digit-style: italic; }
+   /* Card Shapes */
+.exam-card.shape-square {
+    border-radius: 0px;
+    aspect-ratio: 1/1;
+}
+
+.exam-card.shape-rectangle {
+    border-radius: 20px;
+}
+
+.exam-card.shape-oval {
+    border-radius: 50px;
+}
+
+.exam-card.shape-hexagonal {
+    border-radius: 10px;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+
+.exam-card.shape-cloud {
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+}
+
+/* Embed Mode Styles */
+body.embed-mode .header h1 {
+    font-size: 20px;
+}
+
+body.embed-mode .header p {
+    display: none;
+}
+
+body.embed-mode .firebase-status {
+    display: none;
+}
+
+body.embed-mode .fixed-actions {
+    display: none;
+}
+
+body.embed-mode {
+    padding-bottom: 20px;
+}
+
+.three-dot-menu {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.three-dot-btn {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: none;
+    color: white;
+    font-size: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.three-dot-btn:active {
+    transform: scale(0.95);
+}
+
+.three-dot-dropdown {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    min-width: 180px;
+    overflow: hidden;
+}
+
+.three-dot-dropdown.show {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-item {
+    padding: 12px 20px;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.dropdown-item:hover {
+    background: rgba(0,0,0,0.1);
+}
+
+.dropdown-item:active {
+    background: rgba(0,0,0,0.2);
+}
     </style>
 </head>
 <body class="theme-ocean font-inter" data-digit-style="bold">
@@ -607,6 +721,18 @@
             ⚙️ Settings
         </button>
     </div>
+    <!-- Three Dot Menu for Embed Mode -->
+<div class="three-dot-menu" id="threeDotMenu" style="display: none;">
+    <button class="three-dot-btn" onclick="toggleThreeDotMenu()">⋮</button>
+    <div class="three-dot-dropdown" id="threeDotDropdown">
+        <button class="dropdown-item" onclick="openAddModal(); toggleThreeDotMenu();">
+            ➕ Add New Exam
+        </button>
+        <button class="dropdown-item" onclick="openSettingsModal(); toggleThreeDotMenu();">
+            ⚙️ Settings
+        </button>
+    </div>
+</div>
 
     <!-- Add Exam Modal -->
     <div class="modal" id="addModal">
@@ -662,25 +788,25 @@
                 <button class="close-btn" onclick="closeSettingsModal()">×</button>
             </div>
             
-            <div class="firebase-config-section">
-                <h3>🔥 Firebase Configuration</h3>
-                <p>Configure your Firebase settings to enable data sync across devices.</p>
-                <div class="form-group">
-                    <label>API Key</label>
-                    <input type="text" id="firebaseApiKey" placeholder="Your Firebase API Key">
-                </div>
-                <div class="form-group">
-                    <label>Project ID</label>
-                    <input type="text" id="firebaseProjectId" placeholder="Your Firebase Project ID">
-                </div>
-                <div class="form-group">
-                    <label>Database URL</label>
-                    <input type="text" id="firebaseDatabaseUrl" placeholder="https://your-project.firebaseio.com">
-                </div>
-                <button class="btn btn-primary" onclick="saveFirebaseConfig()" style="width: 100%; justify-content: center;">
-                    💾 Save Firebase Config
-                </button>
-            </div>
+            <div class="firebase-config-section" style="display: none;">
+    <h3>🔥 Firebase Configuration</h3>
+    <p>Configure your Firebase settings to enable data sync across devices.</p>
+    <div class="form-group">
+        <label>API Key</label>
+        <input type="text" id="firebaseApiKey" placeholder="Your Firebase API Key">
+    </div>
+    <div class="form-group">
+        <label>Project ID</label>
+        <input type="text" id="firebaseProjectId" placeholder="Your Firebase Project ID">
+    </div>
+    <div class="form-group">
+        <label>Database URL</label>
+        <input type="text" id="firebaseDatabaseUrl" placeholder="https://your-project.firebaseio.com">
+    </div>
+    <button class="btn btn-primary" onclick="saveFirebaseConfig()" style="width: 100%; justify-content: center;">
+        💾 Save Firebase Config
+    </button>
+</div>
 
             <div class="form-group">
                 <label>Theme</label>
@@ -714,18 +840,20 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <label>Card Size</label>
-                <select id="sizeSelect" onchange="changeCardSize(this.value)">
-                    <option value="small">Small</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="large">Large</option>
-                </select>
-            </div>
+           <div class="form-group">
+    <label>Card Shape</label>
+    <select id="shapeSelect">
+        <option value="square">Square</option>
+        <option value="rectangle" selected>Rectangle</option>
+        <option value="oval">Oval</option>
+        <option value="hexagonal">Hexagonal</option>
+        <option value="cloud">Cloud</option>
+    </select>
+</div>
 
             <div class="embed-section">
-                <h3>🔗 Embed Link</h3>
-                <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 10px;">Copy this link to embed in Notion:</p>
+    <h3>🔗 Embed Link for Notion</h3>
+    <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 10px;">Copy this mobile-optimized link to embed in Notion:</p>
                 <div class="embed-input">
                     <input type="text" id="embedLink" readonly>
                     <button class="copy-btn" onclick="copyEmbedLink()">Copy</button>
@@ -733,8 +861,9 @@
             </div>
 
             <div class="btn-group" style="margin-top: 20px;">
-                <button class="btn btn-secondary" onclick="closeSettingsModal()">Close</button>
-            </div>
+    <button class="btn btn-primary" onclick="saveAllSettings()">💾 Save Settings</button>
+    <button class="btn btn-secondary" onclick="closeSettingsModal()">Close</button>
+</div>
         </div>
     </div>
 
@@ -751,12 +880,12 @@
         let firebaseConfigured = false;
         let exams = [];
         let selectedIcon = '📚';
-        let settings = {
-            theme: 'ocean',
-            font: 'inter',
-            digitStyle: 'bold',
-            cardSize: 'medium'
-        };
+       let settings = {
+    theme: 'ocean',
+    font: 'inter',
+    digitStyle: 'bold',
+    cardShape: 'rectangle'
+};
 
         // Sound effects
         function playSound(soundId) {
@@ -934,6 +1063,7 @@ window.addEventListener('DOMContentLoaded', () => {
     updateCountdowns();
     setInterval(updateCountdowns, 1000);
     updateEmbedLink();
+    checkEmbedMode();
     
     // Set min datetime to now
     const now = new Date();
@@ -941,23 +1071,25 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('examDate').min = now.toISOString().slice(0, 16);
 });
 
-        function applySettings() {
-            document.body.className = `theme-${settings.theme} font-${settings.font}`;
-            document.body.setAttribute('data-digit-style', settings.digitStyle);
-            document.getElementById('examsGrid').className = `exams-grid size-${settings.cardSize}`;
-            document.getElementById('fontSelect').value = settings.font;
-            document.getElementById('digitSelect').value = settings.digitStyle;
-            document.getElementById('sizeSelect').value = settings.cardSize;
-            
-            // Update theme selector
-            document.querySelectorAll('.theme-option').forEach(opt => {
-                opt.classList.remove('active');
-            });
-            const themeIndex = ['ocean', 'sunset', 'forest', 'midnight', 'lavender'].indexOf(settings.theme);
-            if (themeIndex >= 0) {
-                document.querySelectorAll('.theme-option')[themeIndex].classList.add('active');
-            }
-        }
+       function applySettings() {
+    document.body.className = `theme-${settings.theme} font-${settings.font}`;
+    document.body.setAttribute('data-digit-style', settings.digitStyle);
+    document.getElementById('fontSelect').value = settings.font;
+    document.getElementById('digitSelect').value = settings.digitStyle;
+    document.getElementById('shapeSelect').value = settings.cardShape;
+    
+    // Update theme selector
+    document.querySelectorAll('.theme-option').forEach(opt => {
+        opt.classList.remove('active');
+    });
+    const themeIndex = ['ocean', 'sunset', 'forest', 'midnight', 'lavender'].indexOf(settings.theme);
+    if (themeIndex >= 0) {
+        document.querySelectorAll('.theme-option')[themeIndex].classList.add('active');
+    }
+    
+    // Apply card shapes
+    renderExams();
+}
 
         function openAddModal() {
             playSound('clickSound');
@@ -1062,8 +1194,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 const timeData = getTimeRemaining(exam.date);
                 const progress = getProgress(exam.createdAt, exam.date);
                 
-                return `
-                    <div class="exam-card">
+               return `
+    <div class="exam-card shape-${settings.cardShape}">
                         <div class="exam-header">
                             <div style="display: flex; align-items: flex-start;">
                                 <div class="exam-icon">${exam.icon}</div>
@@ -1198,17 +1330,11 @@ window.addEventListener('DOMContentLoaded', () => {
             applySettings();
         }
 
-        function changeCardSize(size) {
-            playSound('clickSound');
-            settings.cardSize = size;
-            saveSettingsToFirebase();
-            applySettings();
-        }
-
         function updateEmbedLink() {
-            const link = window.location.href;
-            document.getElementById('embedLink').value = link;
-        }
+    const baseUrl = window.location.href.split('?')[0];
+    const embedLink = baseUrl + '?embed=true';
+    document.getElementById('embedLink').value = embedLink;
+}
 
         function copyEmbedLink() {
             playSound('clickSound');
@@ -1257,6 +1383,43 @@ window.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
+        // Save all settings at once
+function saveAllSettings() {
+    playSound('clickSound');
+    settings.theme = document.body.className.match(/theme-(\w+)/)[1];
+    settings.font = document.getElementById('fontSelect').value;
+    settings.digitStyle = document.getElementById('digitSelect').value;
+    settings.cardShape = document.getElementById('shapeSelect').value;
+    
+    saveSettingsToFirebase();
+    applySettings();
+    showNotification('Settings saved successfully! ✅');
+}
+
+// Three dot menu toggle
+function toggleThreeDotMenu() {
+    playSound('clickSound');
+    const dropdown = document.getElementById('threeDotDropdown');
+    dropdown.classList.toggle('show');
+}
+
+// Close three dot menu when clicking outside
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('threeDotMenu');
+    const dropdown = document.getElementById('threeDotDropdown');
+    if (menu && !menu.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+// Check for embed mode
+function checkEmbedMode() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('embed') === 'true') {
+        document.body.classList.add('embed-mode');
+        document.getElementById('threeDotMenu').style.display = 'block';
+    }
+}
     </script>
 </body>
 </html>

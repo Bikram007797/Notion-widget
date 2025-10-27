@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Exam Countdown Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --theme-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --theme-card: rgba(255, 255, 255, 0.1);
+            --theme-text: #ffffff;
+            --theme-accent: #ffd700;
+            --theme-progress: #4ade80;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--theme-bg);
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--theme-text);
+        }
+
+        .header h1 {
+            font-size: clamp(24px, 5vw, 36px);
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .firebase-status {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .firebase-status.connected {
+            background: rgba(74, 222, 128, 0.3);
+        }
+
+        .firebase-status.error {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .exams-grid {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 767px) {
+            .exams-grid.size-small { grid-template-columns: 1fr; }
+            .exams-grid.size-medium { grid-template-columns: 1fr; }
+            .exams-grid.size-large { grid-template-columns: 1fr; }
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .exams-grid.size-small { grid-template-columns: repeat(2, 1fr); }
+            .exams-grid.size-medium { grid-template-columns: repeat(2, 1fr); }
+            .exams-grid.size-large { grid-template-columns: 1fr; }
+        }
+
+        @media (min-width: 1024px) {
+            .exams-grid.size-small { grid-template-columns: repeat(3, 1fr); }
+            .exams-grid.size-medium { grid-template-columns: repeat(2, 1fr); }
+            .exams-grid.size-large { grid-template-columns: 1fr; }
+        }
+
+        .exam-card {
+            background: var(--theme-card);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exam-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .exam-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .exam-icon {
+            font-size: 36px;
+            margin-right: 15px;
+        }
+
+        .exam-info {
+            flex: 1;
+        }
+
+        .exam-name {
+            font-size: clamp(18px, 3vw, 24px);
+            font-weight: 700;
+            color: var(--theme-text);
+            margin-bottom: 5px;
+        }
+
+        .exam-date {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .exam-description {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .delete-btn:active {
+            transform: scale(0.9);
+            background: rgba(239, 68, 68, 0.4);
+        }
+
+        .countdown {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .countdown-item {
+            text-align: center;
+        }
+
+        .countdown-value {
+            font-size: clamp(28px, 5vw, 42px);
+            font-weight: var(--digit-weight, 700);
+            font-style: var(--digit-style, normal);
+            color: var(--theme-accent);
+            display: block;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .countdown-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .progress-container {
+            margin-top: 20px;
+        }
+
+        .progress-bar-wrapper {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--theme-progress);
+            border-radius: 10px;
+            transition: width 1s ease;
+            box-shadow: 0 0 10px var(--theme-progress);
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--theme-text);
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 25px;
+        }
+
+        .fixed-actions {
+            position: fixed;
+            bottom: env(safe-area-inset-bottom);
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 48px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            padding: 20px;
+            overflow-y: auto;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            color: white;
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .close-btn:active {
+            transform: scale(0.9);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: white;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .theme-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+        }
+
+        .theme-option {
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-option:active {
+            transform: scale(0.95);
+        }
+
+        .theme-option.active {
+            border-color: white;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .emoji-picker {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .emoji-option {
+            font-size: 28px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .emoji-option:active {
+            transform: scale(1.2);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        .embed-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .embed-section h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .embed-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .embed-input input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+
+        .copy-btn {
+            padding: 10px 20px;
+            background: #4ade80;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4ade80;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 3000;
+            animation: slideIn 0.3s ease;
+            display: none;
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+
+        .firebase-config-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .firebase-config-section h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .firebase-config-section p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        /* Theme variations */
+        body.theme-ocean {
+            --theme-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --theme-accent: #ffd700;
+            --theme-progress: #4ade80;
+        }
+
+        body.theme-sunset {
+            --theme-bg: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --theme-accent: #ffeb3b;
+            --theme-progress: #ff6b6b;
+        }
+
+        body.theme-forest {
+            --theme-bg: linear-gradient(135deg, #0ba360 0%, #3cba92 100%);
+            --theme-accent: #ffd700;
+            --theme-progress: #66bb6a;
+        }
+
+        body.theme-midnight {
+            --theme-bg: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
+            --theme-accent: #00d4ff;
+            --theme-progress: #00bcd4;
+        }
+
+        body.theme-lavender {
+            --theme-bg: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
+            --theme-accent: #ffd700;
+            --theme-progress: #ba68c8;
+        }
+
+        /* Font families */
+        .font-inter { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .font-georgia { font-family: Georgia, serif; }
+        .font-courier { font-family: 'Courier New', monospace; }
+        .font-arial { font-family: Arial, sans-serif; }
+        .font-times { font-family: 'Times New Roman', serif; }
+
+        /* Digit styles */
+        body[data-digit-style="normal"] { --digit-weight: 400; --digit-style: normal; }
+        body[data-digit-style="bold"] { --digit-weight: 700; --digit-style: normal; }
+        body[data-digit-style="light"] { --digit-weight: 300; --digit-style: normal; }
+        body[data-digit-style="italic"] { --digit-weight: 400; --digit-style: italic; }
+    </style>
+</head>
+<body class="theme-ocean font-inter" data-digit-style="bold">
+    <audio id="clickSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRhQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YfD///8AAP//AAD//wAA" type="audio/wav">
+    </audio>
+    <audio id="successSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQD/AP8A/wD/AP8=" type="audio/wav">
+    </audio>
+
+    <div class="container">
+        <div class="header">
+            <h1>📚 Exam Countdown Widget</h1>
+            <p>Stay motivated and track your upcoming exams</p>
+            <div class="firebase-status" id="firebaseStatus">🔄 Connecting to Firebase...</div>
+        </div>
+
+        <div class="exams-grid size-medium" id="examsGrid">
+            <div class="empty-state">
+                <h2>No Exams Yet! 📝</h2>
+                <p>Click the "➕ Add New Exam" button below to create your first exam countdown.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed-actions">
+        <button class="btn btn-primary" onclick="openAddModal()">
+            ➕ Add New Exam
+        </button>
+        <button class="btn btn-secondary" onclick="openSettingsModal()">
+            ⚙️ Settings
+        </button>
+    </div>
+
+    <!-- Add Exam Modal -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>➕ Add New Exam</h2>
+                <button class="close-btn" onclick="closeAddModal()">×</button>
+            </div>
+            <form id="addExamForm">
+                <div class="form-group">
+                    <label>Exam Name *</label>
+                    <input type="text" id="examName" placeholder="e.g., Final Mathematics Exam" required>
+                </div>
+                <div class="form-group">
+                    <label>Exam Date & Time *</label>
+                    <input type="datetime-local" id="examDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Description (Optional)</label>
+                    <textarea id="examDescription" placeholder="Add any notes or details about this exam..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Choose Icon</label>
+                    <div class="emoji-picker">
+                        <div class="emoji-option" onclick="selectEmoji('📚')">📚</div>
+                        <div class="emoji-option" onclick="selectEmoji('📝')">📝</div>
+                        <div class="emoji-option" onclick="selectEmoji('📖')">📖</div>
+                        <div class="emoji-option" onclick="selectEmoji('🎓')">🎓</div>
+                        <div class="emoji-option" onclick="selectEmoji('✏️')">✏️</div>
+                        <div class="emoji-option" onclick="selectEmoji('🔬')">🔬</div>
+                        <div class="emoji-option" onclick="selectEmoji('💻')">💻</div>
+                        <div class="emoji-option" onclick="selectEmoji('🎯')">🎯</div>
+                        <div class="emoji-option" onclick="selectEmoji('⚡')">⚡</div>
+                        <div class="emoji-option" onclick="selectEmoji('🌟')">🌟</div>
+                        <div class="emoji-option" onclick="selectEmoji('🚀')">🚀</div>
+                        <div class="emoji-option" onclick="selectEmoji('💪')">💪</div>
+                    </div>
+                    <input type="hidden" id="examIcon" value="📚">
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">💾 Save Exam</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Settings</h2>
+                <button class="close-btn" onclick="closeSettingsModal()">×</button>
+            </div>
+            
+            <div class="firebase-config-section">
+                <h3>🔥 Firebase Configuration</h3>
+                <p>Configure your Firebase settings to enable data sync across devices.</p>
+                <div class="form-group">
+                    <label>API Key</label>
+                    <input type="text" id="firebaseApiKey" placeholder="Your Firebase API Key">
+                </div>
+                <div class="form-group">
+                    <label>Project ID</label>
+                    <input type="text" id="firebaseProjectId" placeholder="Your Firebase Project ID">
+                </div>
+                <div class="form-group">
+                    <label>Database URL</label>
+                    <input type="text" id="firebaseDatabaseUrl" placeholder="https://your-project.firebaseio.com">
+                </div>
+                <button class="btn btn-primary" onclick="saveFirebaseConfig()" style="width: 100%; justify-content: center;">
+                    💾 Save Firebase Config
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label>Theme</label>
+                <div class="theme-selector">
+                    <div class="theme-option active" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="changeTheme('ocean')">Ocean</div>
+                    <div class="theme-option" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="changeTheme('sunset')">Sunset</div>
+                    <div class="theme-option" style="background: linear-gradient(135deg, #0ba360 0%, #3cba92 100%);" onclick="changeTheme('forest')">Forest</div>
+                    <div class="theme-option" style="background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);" onclick="changeTheme('midnight')">Midnight</div>
+                    <div class="theme-option" style="background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);" onclick="changeTheme('lavender')">Lavender</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Font Style</label>
+                <select id="fontSelect" onchange="changeFont(this.value)">
+                    <option value="inter">Inter (Default)</option>
+                    <option value="georgia">Georgia</option>
+                    <option value="courier">Courier New</option>
+                    <option value="arial">Arial</option>
+                    <option value="times">Times New Roman</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Digit Style</label>
+                <select id="digitSelect" onchange="changeDigitStyle(this.value)">
+                    <option value="normal">Normal</option>
+                    <option value="bold" selected>Bold</option>
+                    <option value="light">Light</option>
+                    <option value="italic">Italic</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Card Size</label>
+                <select id="sizeSelect" onchange="changeCardSize(this.value)">
+                    <option value="small">Small</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="large">Large</option>
+                </select>
+            </div>
+
+            <div class="embed-section">
+                <h3>🔗 Embed Link</h3>
+                <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 10px;">Copy this link to embed in Notion:</p>
+                <div class="embed-input">
+                    <input type="text" id="embedLink" readonly>
+                    <button class="copy-btn" onclick="copyEmbedLink()">Copy</button>
+                </div>
+            </div>
+
+            <div class="btn-group" style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeSettingsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase and app state
+        let firebaseApp = null;
+        let database = null;
+        let firebaseConfigured = false;
+        let exams = [];
+        let selectedIcon = '📚';
+        let settings = {
+            theme: 'ocean',
+            font: 'inter',
+            digitStyle: 'bold',
+            cardSize: 'medium'
+        };
+
+        // Sound effects
+        function playSound(soundId) {
+            try {
+                const sound = document.getElementById(soundId);
+                sound.currentTime = 0;
+                sound.play().catch(() => {});
+            } catch (e) {}
+        }
+
+        // Initialize Firebase
+        function initializeFirebase(config) {
+            try {
+                if (firebaseApp) {
+                    firebaseApp.delete();
+                }
+                
+                firebaseApp = firebase.initializeApp(config);
+                database = firebase.database();
+                firebaseConfigured = true;
+                
+                updateFirebaseStatus('✅ Connected to Firebase', 'connected');
+                
+                // Listen for changes
+                database.ref('exams').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        exams = Object.values(data);
+                        exams.sort((a, b) => new Date(a.date) - new Date(b.date));
+                        renderExams();
+                    }
+                });
+
+                database.ref('settings').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        settings = data;
+                        applySettings();
+                    }
+                });
+
+                return true;
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                updateFirebaseStatus('❌ Firebase connection failed', 'error');
+                firebaseConfigured = false;
+                return false;
+            }
+        }
+
+        function updateFirebaseStatus(message, status) {
+            const statusEl = document.getElementById('firebaseStatus');
+            statusEl.textContent = message;
+            statusEl.className = 'firebase-status ' + status;
+        }
+
+        function saveFirebaseConfig() {
+            const apiKey = document.getElementById('firebaseApiKey').value.trim();
+            const projectId = document.getElementById('firebaseProjectId').value.trim();
+            const databaseUrl = document.getElementById('firebaseDatabaseUrl').value.trim();
+
+            if (!apiKey || !projectId || !databaseUrl) {
+                showNotification('Please fill in all Firebase fields', 'error');
+                return;
+            }
+
+            const config = {
+                apiKey: apiKey,
+                projectId: projectId,
+                databaseURL: databaseUrl
+            };
+
+            // Save to localStorage
+            localStorage.setItem('firebaseConfig', JSON.stringify(config));
+
+            // Initialize Firebase
+            if (initializeFirebase(config)) {
+                showNotification('Firebase configured successfully! 🔥');
+                playSound('successSound');
+            }
+        }
+
+        // Data persistence functions
+        function saveExamsToFirebase() {
+            if (!firebaseConfigured || !database) {
+                saveExamsToLocalStorage();
+                return;
+            }
+
+            try {
+                const examsObj = {};
+                exams.forEach(exam => {
+                    examsObj[exam.id] = exam;
+                });
+                database.ref('exams').set(examsObj);
+            } catch (error) {
+                console.error('Error saving to Firebase:', error);
+                saveExamsToLocalStorage();
+            }
+        }
+
+        function saveSettingsToFirebase() {
+            if (!firebaseConfigured || !database) {
+                saveSettingsToLocalStorage();
+                return;
+            }
+
+            try {
+                database.ref('settings').set(settings);
+            } catch (error) {
+                console.error('Error saving settings to Firebase:', error);
+                saveSettingsToLocalStorage();
+            }
+        }
+
+        function saveExamsToLocalStorage() {
+            try {
+                localStorage.setItem('exams', JSON.stringify(exams));
+            } catch (e) {
+                console.error('Error saving to localStorage:', e);
+            }
+        }
+
+        function saveSettingsToLocalStorage() {
+            try {
+                localStorage.setItem('examSettings', JSON.stringify(settings));
+            } catch (e) {
+                console.error('Error saving settings:', e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const savedExams = localStorage.getItem('exams');
+                if (savedExams) {
+                    exams = JSON.parse(savedExams);
+                    renderExams();
+                }
+
+                const savedSettings = localStorage.getItem('examSettings');
+                if (savedSettings) {
+                    settings = JSON.parse(savedSettings);
+                    applySettings();
+                }
+            } catch (e) {
+                console.error('Error loading from localStorage:', e);
+            }
+        }
+
+        // Initialize on page load
+       // Initialize on page load
+window.addEventListener('DOMContentLoaded', () => {
+    // Your Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAiTYmQYLn44LoSuaJSXq1s6gG-65CXM5k",
+        authDomain: "exam-countdown-widget.firebaseapp.com",
+        databaseURL: "https://exam-countdown-widget-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "exam-countdown-widget",
+        storageBucket: "exam-countdown-widget.firebasestorage.app",
+        messagingSenderId: "884414746027",
+        appId: "1:884414746027:web:d0621f7093b6f0182156ee"
+    };
+
+    // Auto-initialize Firebase with your config
+    initializeFirebase(firebaseConfig);
+
+    // Pre-fill the settings form
+    document.getElementById('firebaseApiKey').value = firebaseConfig.apiKey;
+    document.getElementById('firebaseProjectId').value = firebaseConfig.projectId;
+    document.getElementById('firebaseDatabaseUrl').value = firebaseConfig.databaseURL;
+
+    // Load from localStorage as fallback
+    loadFromLocalStorage();
+    
+    updateCountdowns();
+    setInterval(updateCountdowns, 1000);
+    updateEmbedLink();
+    
+    // Set min datetime to now
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('examDate').min = now.toISOString().slice(0, 16);
+});
+
+        function applySettings() {
+            document.body.className = `theme-${settings.theme} font-${settings.font}`;
+            document.body.setAttribute('data-digit-style', settings.digitStyle);
+            document.getElementById('examsGrid').className = `exams-grid size-${settings.cardSize}`;
+            document.getElementById('fontSelect').value = settings.font;
+            document.getElementById('digitSelect').value = settings.digitStyle;
+            document.getElementById('sizeSelect').value = settings.cardSize;
+            
+            // Update theme selector
+            document.querySelectorAll('.theme-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            const themeIndex = ['ocean', 'sunset', 'forest', 'midnight', 'lavender'].indexOf(settings.theme);
+            if (themeIndex >= 0) {
+                document.querySelectorAll('.theme-option')[themeIndex].classList.add('active');
+            }
+        }
+
+        function openAddModal() {
+            playSound('clickSound');
+            document.getElementById('addModal').classList.add('active');
+            document.getElementById('examName').focus();
+        }
+
+        function closeAddModal() {
+            playSound('clickSound');
+            document.getElementById('addModal').classList.remove('active');
+            document.getElementById('addExamForm').reset();
+            selectedIcon = '📚';
+        }
+
+        function openSettingsModal() {
+            playSound('clickSound');
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function closeSettingsModal() {
+            playSound('clickSound');
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function selectEmoji(emoji) {
+            playSound('clickSound');
+            selectedIcon = emoji;
+            document.getElementById('examIcon').value = emoji;
+            document.querySelectorAll('.emoji-option').forEach(opt => {
+                opt.style.background = opt.textContent === emoji ? 'rgba(255,255,255,0.3)' : '';
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.getElementById('addExamForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('examName').value.trim();
+            const dateStr = document.getElementById('examDate').value;
+            const description = document.getElementById('examDescription').value.trim();
+            
+            if (!name || !dateStr) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+
+            const examDate = new Date(dateStr);
+            if (examDate < new Date()) {
+                if (!confirm('This date is in the past. Do you still want to add it?')) {
+                    return;
+                }
+            }
+
+            const exam = {
+                id: Date.now(),
+                name: escapeHtml(name),
+                date: examDate.toISOString(),
+                description: escapeHtml(description),
+                icon: selectedIcon,
+                createdAt: new Date().toISOString()
+            };
+
+            exams.push(exam);
+            exams.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            saveExamsToFirebase();
+            renderExams();
+            closeAddModal();
+            playSound('successSound');
+            showNotification('Exam added successfully! 🎉');
+        });
+
+        function deleteExam(id) {
+            if (confirm('Are you sure you want to delete this exam?')) {
+                playSound('clickSound');
+                exams = exams.filter(exam => exam.id !== id);
+                saveExamsToFirebase();
+                renderExams();
+                showNotification('Exam deleted');
+            }
+        }
+
+        function renderExams() {
+            const grid = document.getElementById('examsGrid');
+            
+            if (exams.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h2>No Exams Yet! 📝</h2>
+                        <p>Click the "➕ Add New Exam" button below to create your first exam countdown.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = exams.map(exam => {
+                const timeData = getTimeRemaining(exam.date);
+                const progress = getProgress(exam.createdAt, exam.date);
+                
+                return `
+                    <div class="exam-card">
+                        <div class="exam-header">
+                            <div style="display: flex; align-items: flex-start;">
+                                <div class="exam-icon">${exam.icon}</div>
+                                <div class="exam-info">
+                                    <div class="exam-name">${exam.name}</div>
+                                    <div class="exam-date">${formatDate(exam.date)}</div>
+                                    ${exam.description ? `<div class="exam-description">${exam.description}</div>` : ''}
+                                </div>
+                            </div>
+                            <button class="delete-btn" onclick="deleteExam(${exam.id})">🗑️</button>
+                        </div>
+                        
+                        <div class="countdown">
+                            <div class="countdown-item">
+                                <span class="countdown-value">${timeData.days}</span>
+                                <div class="countdown-label">Days</div>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="countdown-value">${timeData.hours}</span>
+                                <div class="countdown-label">Hours</div>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="countdown-value">${timeData.minutes}</span>
+                                <div class="countdown-label">Minutes</div>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="countdown-value">${timeData.seconds}</span>
+                                <div class="countdown-label">Seconds</div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-container">
+                            <div class="progress-bar-wrapper">
+                                <div class="progress-bar" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="progress-text">${progress}% time elapsed</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getTimeRemaining(dateStr) {
+            const examDate = new Date(dateStr);
+            const now = new Date();
+            const diff = examDate - now;
+
+            if (diff <= 0) {
+                return { days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 };
+            }
+
+            return {
+                total: diff,
+                days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+                hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+                minutes: Math.floor((diff / (1000 * 60)) % 60),
+                seconds: Math.floor((diff / 1000) % 60)
+            };
+        }
+
+        function getProgress(createdAt, examDate) {
+            const start = new Date(createdAt);
+            const end = new Date(examDate);
+            const now = new Date();
+            
+            const total = end - start;
+            const elapsed = now - start;
+            
+            if (elapsed <= 0) return 0;
+            if (elapsed >= total) return 100;
+            
+            return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        function updateCountdowns() {
+            if (exams.length === 0) return;
+            
+            exams.forEach(exam => {
+                const timeData = getTimeRemaining(exam.date);
+                const card = document.querySelector(`[onclick="deleteExam(${exam.id})"]`)?.closest('.exam-card');
+                
+                if (card) {
+                    const values = card.querySelectorAll('.countdown-value');
+                    if (values.length === 4) {
+                        values[0].textContent = timeData.days;
+                        values[1].textContent = timeData.hours;
+                        values[2].textContent = timeData.minutes;
+                        values[3].textContent = timeData.seconds;
+                    }
+                    
+                    const progressBar = card.querySelector('.progress-bar');
+                    const progressText = card.querySelector('.progress-text');
+                    const progress = getProgress(exam.createdAt, exam.date);
+                    
+                    if (progressBar) progressBar.style.width = progress + '%';
+                    if (progressText) progressText.textContent = progress + '% time elapsed';
+                }
+            });
+        }
+
+        function changeTheme(theme) {
+            playSound('clickSound');
+            settings.theme = theme;
+            saveSettingsToFirebase();
+            applySettings();
+        }
+
+        function changeFont(font) {
+            playSound('clickSound');
+            settings.font = font;
+            saveSettingsToFirebase();
+            applySettings();
+        }
+
+        function changeDigitStyle(style) {
+            playSound('clickSound');
+            settings.digitStyle = style;
+            saveSettingsToFirebase();
+            applySettings();
+        }
+
+        function changeCardSize(size) {
+            playSound('clickSound');
+            settings.cardSize = size;
+            saveSettingsToFirebase();
+            applySettings();
+        }
+
+        function updateEmbedLink() {
+            const link = window.location.href;
+            document.getElementById('embedLink').value = link;
+        }
+
+        function copyEmbedLink() {
+            playSound('clickSound');
+            const input = document.getElementById('embedLink');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            
+            try {
+                document.execCommand('copy');
+                showNotification('Link copied to clipboard! 📋');
+            } catch (err) {
+                navigator.clipboard.writeText(input.value).then(() => {
+                    showNotification('Link copied to clipboard! 📋');
+                }).catch(() => {
+                    showNotification('Failed to copy link', 'error');
+                });
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = type === 'error' ? '#ef4444' : '#4ade80';
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Close modals on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    playSound('clickSound');
+                }
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

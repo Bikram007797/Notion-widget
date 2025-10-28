@@ -1248,7 +1248,11 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
        function applySettings() {
+    const isEmbed = document.body.classList.contains('embed-mode');
     document.body.className = `theme-${settings.theme} font-${settings.font}`;
+    if (isEmbed) {
+        document.body.classList.add('embed-mode'); // Re-add embed mode class
+    }
     document.body.setAttribute('data-digit-style', settings.digitStyle);
     document.getElementById('fontSelect').value = settings.font;
     document.getElementById('digitSelect').value = settings.digitStyle;
@@ -1593,7 +1597,14 @@ window.addEventListener('DOMContentLoaded', () => {
         // Save all settings at once
 function saveAllSettings() {
     playSound('clickSound');
-    settings.theme = document.body.className.match(/theme-(\w+)/)[1];
+    
+    // Extract theme from class list more safely
+    const classList = document.body.className.split(' ');
+    const themeClass = classList.find(c => c.startsWith('theme-'));
+    if (themeClass) {
+        settings.theme = themeClass.replace('theme-', '');
+    }
+    
     settings.font = document.getElementById('fontSelect').value;
     settings.digitStyle = document.getElementById('digitSelect').value;
     settings.cardShape = document.getElementById('shapeSelect').value;

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Like & Dislike Buttons</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 50px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 300px;
+            width: 100%;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .action-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            max-width: 180px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 32px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.6);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .like-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .like-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .dislike-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .dislike-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+        }
+
+        .count {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            min-height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .animate-like {
+            animation: likeAnimation 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .animate-dislike {
+            animation: dislikeAnimation 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes likeAnimation {
+            0% {
+                transform: scale(1) rotate(0deg);
+            }
+            50% {
+                transform: scale(1.3) rotate(10deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        @keyframes dislikeAnimation {
+            0% {
+                transform: scale(1) rotate(0deg);
+            }
+            50% {
+                transform: scale(1.3) rotate(-10deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .count-animate {
+            animation: countPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes countPop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.4);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 24px;
+            animation: particleFloat 1s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(0.5) rotate(360deg);
+            }
+        }
+
+       
+        
+
+        .stats-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .stats-value {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .divider {
+            width: 2px;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent, #ddd, transparent);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .btn {
+                padding: 18px;
+                font-size: 28px;
+            }
+
+            .count {
+                font-size: 24px;
+            }
+
+            .stats-value {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .button-container {
+                gap: 15px;
+            }
+
+            .btn {
+                padding: 15px;
+                font-size: 24px;
+            }
+
+            .count {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="button-container">
+            <div class="action-button">
+                <button class="btn like-btn" id="likeBtn">
+                    <span id="likeIcon">👍</span>
+                </button>
+                <div class="count" id="likeCount">0</div>
+                <div class="label">Likes</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="action-button">
+                <button class="btn dislike-btn" id="dislikeBtn">
+                    <span id="dislikeIcon">👎</span>
+                </button>
+                <div class="count" id="dislikeCount">0</div>
+                <div class="label">Dislikes</div>
+            </div>
+        </div>
+
+        <div class="stats">
+           
+            
+        </div>
+    </div>
+
+    <script>
+        let likeCount = 0;
+        let dislikeCount = 0;
+
+        const likeBtn = document.getElementById('likeBtn');
+        const dislikeBtn = document.getElementById('dislikeBtn');
+        const likeCountEl = document.getElementById('likeCount');
+        const dislikeCountEl = document.getElementById('dislikeCount');
+        const totalCountEl = document.getElementById('totalCount');
+        const likeIcon = document.getElementById('likeIcon');
+        const dislikeIcon = document.getElementById('dislikeIcon');
+
+        // Audio Context for sound effects
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playLikeSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        function playDislikeSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.setValueAtTime(392.00, audioContext.currentTime + 0.1); // G4
+            oscillator.frequency.setValueAtTime(293.66, audioContext.currentTime + 0.2); // D4
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        function createParticles(x, y, emoji, count = 5) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = emoji;
+                particle.style.left = x + (Math.random() - 0.5) * 100 + 'px';
+                particle.style.top = y + (Math.random() - 0.5) * 50 + 'px';
+                document.body.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+
+        function updateTotal() {
+            totalCountEl.textContent = likeCount + dislikeCount;
+            totalCountEl.classList.add('count-animate');
+            setTimeout(() => totalCountEl.classList.remove('count-animate'), 400);
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        likeBtn.addEventListener('click', function(e) {
+            likeCount++;
+            
+            // Play sound
+            playLikeSound();
+            
+            // Animate button
+            likeIcon.classList.add('animate-like');
+            setTimeout(() => likeIcon.classList.remove('animate-like'), 600);
+            
+            // Update count with animation
+            likeCountEl.textContent = formatNumber(likeCount);
+            likeCountEl.classList.add('count-animate');
+            setTimeout(() => likeCountEl.classList.remove('count-animate'), 400);
+            
+            // Create particles
+            const rect = likeBtn.getBoundingClientRect();
+            createParticles(rect.left + rect.width / 2, rect.top, '💙', 6);
+            
+            // Update total
+            updateTotal();
+        });
+
+        dislikeBtn.addEventListener('click', function(e) {
+            dislikeCount++;
+            
+            // Play sound
+            playDislikeSound();
+            
+            // Animate button
+            dislikeIcon.classList.add('animate-dislike');
+            setTimeout(() => dislikeIcon.classList.remove('animate-dislike'), 600);
+            
+            // Update count with animation
+            dislikeCountEl.textContent = formatNumber(dislikeCount);
+            dislikeCountEl.classList.add('count-animate');
+            setTimeout(() => dislikeCountEl.classList.remove('count-animate'), 400);
+            
+            // Create particles
+            const rect = dislikeBtn.getBoundingClientRect();
+            createParticles(rect.left + rect.width / 2, rect.top, '💔', 6);
+            
+            // Update total
+            updateTotal();
+        });
+
+        // Add hover effects
+        likeBtn.addEventListener('mouseenter', function() {
+            likeIcon.style.transform = 'scale(1.1)';
+        });
+
+        likeBtn.addEventListener('mouseleave', function() {
+            likeIcon.style.transform = 'scale(1)';
+        });
+
+        dislikeBtn.addEventListener('mouseenter', function() {
+            dislikeIcon.style.transform = 'scale(1.1)';
+        });
+
+        dislikeBtn.addEventListener('mouseleave', function() {
+            dislikeIcon.style.transform = 'scale(1)';
+        });
+    </script>
+</body>
+</html>

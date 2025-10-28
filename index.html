@@ -1036,10 +1036,12 @@ function updateNavigationButtons() {
     
     if (prevBtn) {
         prevBtn.disabled = currentExamIndex === 0;
+        prevBtn.style.pointerEvents = currentExamIndex === 0 ? 'none' : 'auto';
     }
     
     if (nextBtn) {
         nextBtn.disabled = currentExamIndex === exams.length - 1;
+        nextBtn.style.pointerEvents = currentExamIndex === exams.length - 1 ? 'none' : 'auto';
     }
 }
 
@@ -1354,17 +1356,23 @@ window.addEventListener('DOMContentLoaded', () => {
         
         // Adjust current index if needed
         if (document.body.classList.contains('embed-mode')) {
-            if (currentExamIndex >= exams.length && currentExamIndex > 0) {
-                currentExamIndex = exams.length - 1;
+            if (currentExamIndex >= exams.length) {
+                currentExamIndex = Math.max(0, exams.length - 1);
             }
         }
         
         saveExamsToFirebase();
         renderExams();
         showNotification('Exam deleted');
+        
+        // Update navigation if in embed mode
+        if (document.body.classList.contains('embed-mode') && exams.length > 0) {
+            setTimeout(() => {
+                updateEmbedNavigation();
+            }, 100);
+        }
     }
 }
-
        function renderExams() {
     const grid = document.getElementById('examsGrid');
     

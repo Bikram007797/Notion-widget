@@ -1,0 +1,44 @@
+<style>
+/* --------------------------------------
+   1. STYLING (Optimized to fit content in a square - No Button)
+   -------------------------------------- */
+.business-card-container {
+    width: 310px; /* Square Width */
+    height: 355px; /* Square Height */
+    padding: 0; 
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+    position: relative;
+    /* Ensure the iframe fills the entire space */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Iframe Container Styling */
+.iframe-container {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.iframe-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    /* Apply border radius to the iframe to match the card */
+    border-radius: 10px;
+}
+</style>
+
+<div class="business-card-container">
+    <div class="iframe-container">
+        <iframe src="https://bikram007797.github.io/Notion-widget/?embed=true"
+                title="External Widget">
+        </iframe>
+    </div>
+</div>

@@ -1343,7 +1343,7 @@ if (activeCard) {
     }
 }
 
-        function navigateExam(direction) {
+       function navigateExam(direction) {
     playSound('clickSound');
     
     const newIndex = currentExamIndex + direction;
@@ -1364,11 +1364,10 @@ if (activeCard) {
             allCards[currentExamIndex].classList.add('active');
         }
         
-        // Update counter and buttons
-        document.getElementById('examCounter').textContent = `${currentExamIndex + 1} / ${exams.length}`;
-        updateNavigationButtons();
+        // Recreate navigation in the new active card
+        updateEmbedNavigation();
         
-        // ADD THIS LINE:
+        // Adjust height
         adjustEmbedHeight();
     }
 }

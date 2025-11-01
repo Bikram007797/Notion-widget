@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
     <title>QuestForge - Exam Countdown</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;700&display=swap');
@@ -1014,20 +1011,11 @@
     display: none;
     position: relative; 
     margin-top: 20px;    
-    padding: 15px 0;  
-    padding-top: 20px;       
+    padding: 12px 0;     
     gap: 10px;           
     align-items: center;
     justify-content: center;  
     z-index: 900;
-    border-top: 2px solid #8b6914; 
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), rgba(139, 105, 20, 0.05)); /* ADD THIS */
-    border-radius: 0 0 16px 16px; /* ADD THIS - Rounds bottom corners to match card */
-    margin-left: -25px;   /* ADD THIS - Extends to card edges */
-    margin-right: -25px;  /* ADD THIS - Extends to card edges */
-    margin-bottom: -25px; /* ADD THIS - Extends to card bottom */
-    padding-left: 25px;   /* ADD THIS - Maintains content padding */
-    padding-right: 25px;  /* ADD THIS - Maintains content padding */       
 }
         body.embed-mode .embed-navigation {
             display: flex;
@@ -1335,15 +1323,12 @@
                     </div>
                     <button class="nav-btn" id="nextBtn" onclick="navigateExam(1)">▶</button>
                 `;
-                 // CHANGE THIS LINE - Append to the active exam card instead of body
-        const activeCard = document.querySelector('.exam-card.active');
-        if (activeCard) {
-            activeCard.appendChild(navContainer);
+                document.body.appendChild(navContainer);
+                
+                // Update button states
+                updateNavigationButtons();
+            }
         }
-        
-        // Update button states
-        updateNavigationButtons();
-    }
 
         function navigateExam(direction) {
             playSound('clickSound');

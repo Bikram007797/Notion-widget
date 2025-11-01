@@ -1842,7 +1842,7 @@
             
             exams.forEach(exam => {
                 const timeData = getTimeRemaining(exam.date);
-                const card = document.querySelector(`[onclick="deleteExam(${exam.id})"]`)?.closest('.exam-card');
+                const card = document.querySelector(`[data-exam-id="${exam.id}"]`);
                 
                 if (card) {
                     const values = card.querySelectorAll('.countdown-value');

@@ -1,44 +1,333 @@
-<style>
-/* --------------------------------------
-   1. STYLING (Optimized to fit content in a square - No Button)
-   -------------------------------------- */
-.business-card-container {
-    width: 310px; /* Square Width */
-    height: 355px; /* Square Height */
-    padding: 0; 
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    font-family: Arial, sans-serif;
-    position: relative;
-    /* Ensure the iframe fills the entire space */
-    display: flex;
-    flex-direction: column;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuestForge - Exam Card</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* Iframe Container Styling */
-.iframe-container {
-    flex-grow: 1;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
+        body {
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1410 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 10px;
+            position: relative;
+            overflow: hidden;
+        }
 
-.iframe-container iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-    /* Apply border radius to the iframe to match the card */
-    border-radius: 10px;
-}
-</style>
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 15h15l-12 9 5 15-13-10-13 10 5-15-12-9h15z' fill='%23d4af37' fill-opacity='0.05'/%3E%3C/svg%3E");
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-<div class="business-card-container">
-    <div class="iframe-container">
-        <iframe src="https://bikram007797.github.io/Notion-widget/?embed=true"
-                title="External Widget">
-        </iframe>
+        @keyframes torch-flicker {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.95); }
+        }
+
+        .torch-glow {
+            animation: torch-flicker 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow { 
+            0%, 100% { 
+                text-shadow: 0 0 20px rgba(255, 215, 0, 0.8),
+                             0 0 40px rgba(255, 140, 0, 0.5); 
+            } 
+            50% { 
+                text-shadow: 0 0 30px rgba(255, 215, 0, 1),
+                             0 0 60px rgba(255, 140, 0, 0.8),
+                             0 0 80px rgba(255, 69, 0, 0.6); 
+            } 
+        }
+
+        /* --------------------------------------
+           CARD CONTAINER STYLING
+           -------------------------------------- */
+        .business-card-container {
+            width: 310px;
+            height: 355px;
+            padding: 0;
+            border: 3px solid;
+            border-image: linear-gradient(135deg, #d4af37, #8b6914, #d4af37) 1;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #1a1f35 0%, #2d1810 100%);
+            box-shadow: 0 8px 32px rgba(212, 175, 55, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .business-card-container::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(135deg, #d4af37, #8b6914, #d4af37);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(8px);
+        }
+
+        .business-card-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(212, 175, 55, 0.03) 2px,
+                rgba(212, 175, 55, 0.03) 4px
+            );
+            pointer-events: none;
+        }
+
+        /* Decorative corner elements */
+        .corner-decoration {
+            position: absolute;
+            color: #d4af37;
+            font-size: 24px;
+            opacity: 0.6;
+            z-index: 2;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .corner-decoration.top-left {
+            top: 8px;
+            left: 8px;
+        }
+
+        .corner-decoration.top-right {
+            top: 8px;
+            right: 8px;
+        }
+
+        .corner-decoration.bottom-left {
+            bottom: 8px;
+            left: 8px;
+        }
+
+        .corner-decoration.bottom-right {
+            bottom: 8px;
+            right: 8px;
+        }
+
+        /* Header Banner */
+        .card-header {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(139, 105, 20, 0.15));
+            border-bottom: 2px solid #8b6914;
+            padding: 12px 15px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-header h1 {
+            font-family: 'MedievalSharp', cursive;
+            font-size: 16px;
+            color: #ffd700;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8),
+                         0 0 10px rgba(255, 215, 0, 0.5);
+            animation: pulse-glow 2s ease-in-out infinite;
+            letter-spacing: 1px;
+        }
+
+        .card-header .torch-icon {
+            font-size: 20px;
+            margin-right: 8px;
+            display: inline-block;
+        }
+
+        /* Iframe Container Styling */
+        .iframe-container {
+            flex-grow: 1;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(212, 175, 55, 0.2);
+            border-radius: 50%;
+            border-top-color: #d4af37;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            color: #c9a961;
+            font-size: 14px;
+            font-family: 'Cinzel', serif;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Footer Banner */
+        .card-footer {
+            background: linear-gradient(135deg, rgba(42, 24, 16, 0.8), rgba(26, 20, 16, 0.8));
+            border-top: 2px solid #8b6914;
+            padding: 8px 15px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-footer p {
+            font-size: 11px;
+            color: #8b6914;
+            margin: 0;
+            font-style: italic;
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Shimmer effect for borders */
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        .business-card-container:hover {
+            box-shadow: 0 12px 48px rgba(212, 175, 55, 0.6),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 350px) {
+            .business-card-container {
+                width: 280px;
+                height: 320px;
+            }
+            
+            .card-header h1 {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="business-card-container">
+        <!-- Decorative Corners -->
+        <div class="corner-decoration top-left">◆</div>
+        <div class="corner-decoration top-right">◆</div>
+        <div class="corner-decoration bottom-left">◆</div>
+        <div class="corner-decoration bottom-right">◆</div>
+
+        <!-- Header -->
+        <div class="card-header">
+            <h1>
+                <span class="torch-icon torch-glow">⚔️</span>
+                QUEST COUNTDOWN
+                <span class="torch-icon torch-glow">⚔️</span>
+            </h1>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading Scrolls...</div>
+        </div>
+
+        <!-- Iframe Container -->
+        <div class="iframe-container">
+            <iframe 
+                src="https://bikram007797.github.io/Notion-widget/?embed=true"
+                title="QuestForge Exam Countdown"
+                id="embedFrame"
+                onload="hideLoading()">
+            </iframe>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer">
+            <p>⚔️ Forged by Bikr@m ⚔️</p>
+        </div>
     </div>
-</div>
+
+    <script>
+        // Hide loading overlay when iframe loads
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 500);
+            }
+        }
+
+        // Fallback: Hide loading after 5 seconds if iframe doesn't trigger onload
+        setTimeout(() => {
+            hideLoading();
+        }, 5000);
+
+        // Add subtle hover effect to corners
+        document.querySelectorAll('.corner-decoration').forEach(corner => {
+            corner.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.2)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            
+            corner.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Optional: Console log for debugging
+        console.log('⚔️ QuestForge Card Initialized ⚔️');
+        console.log('Embedding: https://bikram007797.github.io/Notion-widget/?embed=true');
+    </script>
+</body>
+</html>

@@ -1004,38 +1004,37 @@
             display: none;
         }
 
-        .embed-navigation {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            gap: 15px;
-            align-items: center;
-            z-index: 900;
-        }
-
+       .embed-navigation {
+    display: none;
+    position: relative; 
+    margin-top: 15px;    
+    padding: 10px 0;     
+    gap: 10px;           
+    align-items: center;
+    justify-content: center;  
+    z-index: 900;
+}
         body.embed-mode .embed-navigation {
             display: flex;
         }
 
-        .nav-btn {
-            background: linear-gradient(135deg, #8b6914 0%, #d4af37 50%, #8b6914 100%);
-            backdrop-filter: blur(10px);
-            border: 2px solid #ffd700;
-            color: #1a1410;
-            font-size: 24px;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            font-weight: bold;
-        }
+       .nav-btn {
+    background: linear-gradient(135deg, #8b6914 0%, #d4af37 50%, #8b6914 100%);
+    backdrop-filter: blur(10px);
+    border: 2px solid #ffd700;
+    color: #1a1410;
+    font-size: 18px;        /* REDUCED from 24px */
+    width: 36px;            /* REDUCED from 48px */
+    height: 36px;           /* REDUCED from 48px */
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
 
         .nav-btn:hover {
             box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
@@ -1052,16 +1051,16 @@
         }
 
         .nav-info {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(139, 105, 20, 0.3));
-            border: 2px solid #8b6914;
-            backdrop-filter: blur(10px);
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: #ffd700;
-            font-size: 14px;
-            font-weight: 600;
-            font-family: 'Cinzel', serif;
-        }
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(139, 105, 20, 0.3));
+    border: 2px solid #8b6914;
+    backdrop-filter: blur(10px);
+    padding: 6px 12px;      /* REDUCED from 8px 16px */
+    border-radius: 20px;
+    color: #ffd700;
+    font-size: 12px;        /* REDUCED from 14px */
+    font-weight: 600;
+    font-family: 'Cinzel', serif;
+}
 
         body.embed-mode .three-dot-menu {
             top: 10px;
@@ -1120,6 +1119,9 @@
             <button class="dropdown-item" onclick="openSettingsModal(); toggleThreeDotMenu();">
                 ⚙️ Settings
             </button>
+             <button class="dropdown-item" id="deleteCurrentExam" onclick="deleteCurrentExam(); toggleThreeDotMenu();">
+        🗑️ Delete Quest
+    </button>
         </div>
     </div>
 
@@ -1673,6 +1675,14 @@
                 }
             }
         }
+        function deleteCurrentExam() {
+    if (exams.length > 0 && document.body.classList.contains('embed-mode')) {
+        const currentExam = exams[currentExamIndex];
+        if (currentExam) {
+            deleteExam(currentExam.id);
+        }
+    }
+}
 
         function renderExams() {
             const grid = document.getElementById('examsGrid');
@@ -1711,7 +1721,7 @@
                                     ${exam.description ? `<div class="exam-description">${exam.description}</div>` : ''}
                                 </div>
                             </div>
-                            <button class="delete-btn" onclick="deleteExam(${exam.id})">🗑️</button>
+                        
                         </div>
                         
                         <div class="countdown">

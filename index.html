@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Exam Countdown Widget</title>
+    <title>QuestForge - Exam Countdown</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -13,26 +15,142 @@
         }
 
         :root {
-            --theme-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --theme-card: rgba(255, 255, 255, 0.1);
-            --theme-text: #ffffff;
-            --theme-accent: #ffd700;
-            --theme-progress: #4ade80;
+            --theme-bg: linear-gradient(135deg, #0a0e1a 0%, #1a1410 100%);
+            --theme-card: linear-gradient(135deg, #1a1f35 0%, #2d1810 100%);
+            --theme-text: #ffd700;
+            --theme-accent: #d4af37;
+            --theme-progress: #8b6914;
+            --border-gold: #d4af37;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--theme-bg);
+            font-family: 'Cinzel', serif;
+            background: #0a0e1a;
             min-height: 100vh;
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
             padding-bottom: calc(80px + env(safe-area-inset-bottom));
             overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 15h15l-12 9 5 15-13-10-13 10 5-15-12-9h15z' fill='%23d4af37' fill-opacity='0.05'/%3E%3C/svg%3E");
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes torch-flicker {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.95); }
+        }
+
+        .torch-glow {
+            animation: torch-flicker 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow { 
+            0%, 100% { 
+                text-shadow: 0 0 20px rgba(255, 215, 0, 0.8),
+                             0 0 40px rgba(255, 140, 0, 0.5); 
+            } 
+            50% { 
+                text-shadow: 0 0 30px rgba(255, 215, 0, 1),
+                             0 0 60px rgba(255, 140, 0, 0.8),
+                             0 0 80px rgba(255, 69, 0, 0.6); 
+            } 
+        }
+
+        .fantasy-card {
+            background: linear-gradient(135deg, #1a1f35 0%, #2d1810 100%);
+            border: 3px solid;
+            border-image: linear-gradient(135deg, #d4af37, #8b6914, #d4af37) 1;
+            box-shadow: 0 8px 32px rgba(212, 175, 55, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .fantasy-card::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(135deg, #d4af37, #8b6914, #d4af37);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(8px);
+        }
+
+        .fantasy-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(212, 175, 55, 0.03) 2px,
+                rgba(212, 175, 55, 0.03) 4px
+            );
+            pointer-events: none;
+        }
+
+        .parchment-bg {
+            background: linear-gradient(135deg, #2a1810 0%, #1a1410 100%);
+            border: 2px solid #8b6914;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5),
+                        0 4px 16px rgba(212, 175, 55, 0.2);
+        }
+
+        .medieval-button {
+            background: linear-gradient(135deg, #8b6914 0%, #d4af37 50%, #8b6914 100%);
+            border: 2px solid #ffd700;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            color: #1a1410;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .medieval-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .medieval-button:hover::before {
+            left: 100%;
+        }
+
+        .medieval-button:active {
+            box-shadow: 0 2px 6px rgba(212, 175, 55, 0.4),
+                        inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
+            z-index: 1;
         }
 
         .header {
@@ -45,24 +163,48 @@
             font-size: clamp(24px, 5vw, 36px);
             font-weight: 700;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            color: #ffd700;
+            font-family: 'MedievalSharp', cursive;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8),
+                         0 0 10px rgba(255, 215, 0, 0.5);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .header h3 {
+            font-size: clamp(14px, 3vw, 18px);
+            color: #c9a961;
+            margin-bottom: 8px;
+            font-family: 'Cinzel', serif;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #8b6914;
+            font-style: italic;
         }
 
         .firebase-status {
             display: inline-block;
             padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(139, 105, 20, 0.2));
+            border: 2px solid #8b6914;
             border-radius: 20px;
             font-size: 13px;
             margin-top: 10px;
+            color: #c9a961;
+            font-family: 'Cinzel', serif;
         }
 
         .firebase-status.connected {
-            background: rgba(74, 222, 128, 0.3);
+            background: linear-gradient(135deg, rgba(139, 105, 20, 0.3), rgba(74, 222, 128, 0.3));
+            border-color: #4ade80;
+            color: #4ade80;
         }
 
         .firebase-status.error {
-            background: rgba(239, 68, 68, 0.3);
+            background: linear-gradient(135deg, rgba(139, 105, 20, 0.3), rgba(239, 68, 68, 0.3));
+            border-color: #ef4444;
+            color: #ff6b6b;
         }
 
         .exams-grid {
@@ -71,31 +213,65 @@
             margin-bottom: 20px;
         }
 
-       @media (max-width: 767px) {
-    .exams-grid { grid-template-columns: 1fr; }
-}
+        @media (max-width: 767px) {
+            .exams-grid { grid-template-columns: 1fr; }
+        }
 
-@media (min-width: 768px) and (max-width: 1023px) {
-    .exams-grid { grid-template-columns: repeat(2, 1fr); }
-}
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .exams-grid { grid-template-columns: repeat(2, 1fr); }
+        }
 
-@media (min-width: 1024px) {
-    .exams-grid { grid-template-columns: repeat(2, 1fr); }
-}
+        @media (min-width: 1024px) {
+            .exams-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
         .exam-card {
-            background: var(--theme-card);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, #1a1f35 0%, #2d1810 100%);
+            border: 3px solid;
+            border-image: linear-gradient(135deg, #d4af37, #8b6914, #d4af37) 1;
+            box-shadow: 0 8px 32px rgba(212, 175, 55, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
             border-radius: 20px;
             padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
             overflow: hidden;
         }
 
+        .exam-card::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(135deg, #d4af37, #8b6914, #d4af37);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(8px);
+        }
+
+        .exam-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(212, 175, 55, 0.03) 2px,
+                rgba(212, 175, 55, 0.03) 4px
+            );
+            pointer-events: none;
+        }
+
         .exam-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 12px 48px rgba(212, 175, 55, 0.5);
         }
 
         .exam-header {
@@ -103,11 +279,14 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
         }
 
         .exam-icon {
             font-size: 36px;
             margin-right: 15px;
+            filter: drop-shadow(0 2px 4px rgba(212, 175, 55, 0.5));
         }
 
         .exam-info {
@@ -117,26 +296,30 @@
         .exam-name {
             font-size: clamp(18px, 3vw, 24px);
             font-weight: 700;
-            color: var(--theme-text);
+            color: #ffd700;
             margin-bottom: 5px;
+            font-family: 'MedievalSharp', cursive;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .exam-date {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
+            color: #c9a961;
+            font-family: 'Cinzel', serif;
         }
 
         .exam-description {
             font-size: 13px;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(201, 169, 97, 0.8);
             margin-top: 8px;
             font-style: italic;
+            font-family: 'Cinzel', serif;
         }
 
         .delete-btn {
-            background: rgba(239, 68, 68, 0.2);
+            background: linear-gradient(135deg, #8b2914 0%, #d43737 50%, #8b2914 100%);
             color: #fff;
-            border: none;
+            border: 2px solid #ff4444;
             border-radius: 50%;
             width: 36px;
             height: 36px;
@@ -145,11 +328,14 @@
             transition: all 0.3s ease;
             min-width: 44px;
             min-height: 44px;
+            box-shadow: 0 4px 12px rgba(212, 55, 55, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .delete-btn:active {
             transform: scale(0.9);
-            background: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 2px 6px rgba(212, 55, 55, 0.4),
+                        inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .countdown {
@@ -157,54 +343,83 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             margin: 20px 0;
+            position: relative;
+            z-index: 1;
         }
 
         .countdown-item {
             text-align: center;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(139, 105, 20, 0.1));
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 12px 8px;
         }
 
         .countdown-value {
             font-size: clamp(28px, 5vw, 42px);
             font-weight: var(--digit-weight, 700);
             font-style: var(--digit-style, normal);
-            color: var(--theme-accent);
+            color: #ffd700;
             display: block;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8),
+                         0 0 10px rgba(255, 215, 0, 0.5);
+            font-family: 'Cinzel', serif;
         }
 
         .countdown-label {
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.8);
+            color: #c9a961;
             text-transform: uppercase;
             margin-top: 5px;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 1px;
         }
 
         .progress-container {
             margin-top: 20px;
+            position: relative;
+            z-index: 1;
         }
 
         .progress-bar-wrapper {
-            background: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, #2a1810 0%, #1a1410 100%);
+            border: 2px solid #8b6914;
             border-radius: 10px;
             height: 12px;
             overflow: hidden;
             position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .progress-bar {
             height: 100%;
-            background: var(--theme-progress);
-            border-radius: 10px;
+            background: linear-gradient(135deg, #8b6914 0%, #d4af37 50%, #8b6914 100%);
+            border-radius: 8px;
             transition: width 1s ease;
-            box-shadow: 0 0 10px var(--theme-progress);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .progress-text {
             text-align: center;
             margin-top: 8px;
             font-size: 13px;
-            color: rgba(255, 255, 255, 0.9);
+            color: #c9a961;
             font-weight: 600;
+            font-family: 'Cinzel', serif;
         }
 
         .empty-state {
@@ -216,12 +431,16 @@
         .empty-state h2 {
             font-size: 24px;
             margin-bottom: 15px;
+            color: #ffd700;
+            font-family: 'MedievalSharp', cursive;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .empty-state p {
             font-size: 16px;
-            opacity: 0.8;
+            color: #c9a961;
             margin-bottom: 25px;
+            font-family: 'Cinzel', serif;
         }
 
         .fixed-actions {
@@ -230,7 +449,7 @@
             left: 0;
             right: 0;
             padding: 15px;
-            background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+            background: linear-gradient(to top, rgba(10, 14, 26, 0.9), transparent);
             display: flex;
             gap: 10px;
             justify-content: center;
@@ -249,7 +468,10 @@
             align-items: center;
             gap: 8px;
             min-height: 48px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn:active {
@@ -257,13 +479,28 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #8b6914 0%, #d4af37 50%, #8b6914 100%);
+            color: #1a1410;
+            border: 2px solid #ffd700;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-primary:hover::before {
+            opacity: 1;
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+            background: linear-gradient(135deg, rgba(42, 24, 16, 0.8), rgba(26, 20, 16, 0.8));
+            color: #ffd700;
+            border: 2px solid #8b6914;
             backdrop-filter: blur(10px);
         }
 
@@ -274,7 +511,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(5px);
             z-index: 2000;
             padding: 20px;
@@ -288,7 +525,9 @@
         }
 
         .modal-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a1f35 0%, #2d1810 100%);
+            border: 3px solid;
+            border-image: linear-gradient(135deg, #d4af37, #8b6914, #d4af37) 1;
             border-radius: 20px;
             padding: 30px;
             max-width: 500px;
@@ -297,6 +536,22 @@
             overflow-y: auto;
             position: relative;
             animation: slideUp 0.3s ease;
+            box-shadow: 0 12px 48px rgba(212, 175, 55, 0.5),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(135deg, #d4af37, #8b6914, #d4af37);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(8px);
         }
 
         @keyframes slideUp {
@@ -312,13 +567,15 @@
         }
 
         .modal-header h2 {
-            color: white;
+            color: #ffd700;
             font-size: 24px;
+            font-family: 'MedievalSharp', cursive;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .close-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
+            background: linear-gradient(135deg, #8b2914 0%, #d43737 50%, #8b2914 100%);
+            border: 2px solid #ff4444;
             color: white;
             font-size: 24px;
             width: 36px;
@@ -327,6 +584,7 @@
             cursor: pointer;
             min-width: 44px;
             min-height: 44px;
+            box-shadow: 0 4px 12px rgba(212, 55, 55, 0.4);
         }
 
         .close-btn:active {
@@ -339,9 +597,13 @@
 
         .form-group label {
             display: block;
-            color: white;
+            color: #ffd700;
             margin-bottom: 8px;
             font-weight: 600;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 14px;
         }
 
         .form-group input,
@@ -349,20 +611,22 @@
         .form-group select {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid #8b6914;
             border-radius: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            background: linear-gradient(135deg, #2a1810 0%, #1a1410 100%);
+            color: #ffd700;
             font-size: 16px;
             transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
         }
 
         .form-group input:focus,
         .form-group textarea:focus,
         .form-group select:focus {
             outline: none;
-            border-color: rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.15);
+            border-color: #d4af37;
+            background: linear-gradient(135deg, #2a1810 0%, #1a1410 100%);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
         }
 
         .form-group textarea {
@@ -372,7 +636,7 @@
 
         .form-group input::placeholder,
         .form-group textarea::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(201, 169, 97, 0.5);
         }
 
         .theme-selector {
@@ -392,6 +656,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1410;
         }
 
         .theme-option:active {
@@ -399,8 +667,8 @@
         }
 
         .theme-option.active {
-            border-color: white;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
         }
 
         .emoji-picker {
@@ -422,11 +690,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            border: 2px solid transparent;
         }
 
         .emoji-option:active {
             transform: scale(1.2);
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(139, 105, 20, 0.2));
+            border-color: #d4af37;
         }
 
         .btn-group {
@@ -437,19 +707,29 @@
 
         .btn-group .btn {
             flex: 1;
+            justify-content: center;
         }
 
         .embed-section {
-            background: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(139, 105, 20, 0.1));
+            border: 2px solid #8b6914;
             padding: 15px;
             border-radius: 12px;
             margin-top: 20px;
         }
 
         .embed-section h3 {
-            color: white;
+            color: #ffd700;
             margin-bottom: 10px;
             font-size: 16px;
+            font-family: 'MedievalSharp', cursive;
+        }
+
+        .embed-section p {
+            color: #c9a961;
+            font-size: 13px;
+            margin-bottom: 10px;
+            font-family: 'Cinzel', serif;
         }
 
         .embed-input {
@@ -461,21 +741,26 @@
             flex: 1;
             padding: 10px;
             border-radius: 8px;
-            border: none;
-            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #8b6914;
+            background: linear-gradient(135deg, #2a1810 0%, #1a1410 100%);
+            color: #ffd700;
             font-size: 14px;
+            font-family: 'Cinzel', serif;
         }
 
         .copy-btn {
             padding: 10px 20px;
-            background: #4ade80;
-            color: white;
-            border: none;
+            background: linear-gradient(135deg, #8b6914 0%, #d4af37 50%, #8b6914 100%);
+            color: #1a1410;
+            border: 2px solid #ffd700;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             min-width: 44px;
             min-height: 44px;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .copy-btn:active {
@@ -486,14 +771,17 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background: #4ade80;
-            color: white;
+            background: linear-gradient(135deg, #8b6914 0%, #d4af37 100%);
+            color: #1a1410;
             padding: 15px 25px;
+            border: 2px solid #ffd700;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.5);
             z-index: 3000;
             animation: slideIn 0.3s ease;
             display: none;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
         }
 
         .notification.show {
@@ -506,57 +794,50 @@
         }
 
         .firebase-config-section {
-            background: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(139, 105, 20, 0.1));
+            border: 2px solid #8b6914;
             padding: 15px;
             border-radius: 12px;
             margin-bottom: 20px;
         }
 
         .firebase-config-section h3 {
-            color: white;
+            color: #ffd700;
             margin-bottom: 10px;
             font-size: 16px;
+            font-family: 'MedievalSharp', cursive;
         }
 
         .firebase-config-section p {
-            color: rgba(255, 255, 255, 0.8);
+            color: #c9a961;
             font-size: 13px;
             margin-bottom: 10px;
+            font-family: 'Cinzel', serif;
         }
 
-        /* Theme variations */
+        /* Theme variations with medieval colors */
         body.theme-ocean {
-            --theme-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --theme-accent: #ffd700;
-            --theme-progress: #4ade80;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1410 100%);
         }
 
         body.theme-sunset {
-            --theme-bg: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --theme-accent: #ffeb3b;
-            --theme-progress: #ff6b6b;
+            background: linear-gradient(135deg, #2d1810 0%, #1a0a0a 100%);
         }
 
         body.theme-forest {
-            --theme-bg: linear-gradient(135deg, #0ba360 0%, #3cba92 100%);
-            --theme-accent: #ffd700;
-            --theme-progress: #66bb6a;
+            background: linear-gradient(135deg, #0a1a0a 0%, #1a1410 100%);
         }
 
         body.theme-midnight {
-            --theme-bg: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
-            --theme-accent: #00d4ff;
-            --theme-progress: #00bcd4;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 100%);
         }
 
         body.theme-lavender {
-            --theme-bg: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
-            --theme-accent: #ffd700;
-            --theme-progress: #ba68c8;
+            background: linear-gradient(135deg, #1a0a2a 0%, #2a1a3a 100%);
         }
 
         /* Font families */
-        .font-inter { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .font-inter { font-family: 'Cinzel', serif; }
         .font-georgia { font-family: Georgia, serif; }
         .font-courier { font-family: 'Courier New', monospace; }
         .font-arial { font-family: Arial, sans-serif; }
@@ -567,223 +848,231 @@
         body[data-digit-style="bold"] { --digit-weight: 700; --digit-style: normal; }
         body[data-digit-style="light"] { --digit-weight: 300; --digit-style: normal; }
         body[data-digit-style="italic"] { --digit-weight: 400; --digit-style: italic; }
-   /* Card Shapes */
-.exam-card.shape-square {
-    border-radius: 12px;
-    aspect-ratio: 1 / 1;
-}
 
-.exam-card.shape-rectangle {
-    border-radius: 16px;
-}
+        /* Card Shapes */
+        .exam-card.shape-square {
+            border-radius: 12px;
+            aspect-ratio: 1 / 1;
+        }
 
-.exam-card.shape-round {
-    border-radius: 50%;
-    aspect-ratio: 1 / 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
+        .exam-card.shape-rectangle {
+            border-radius: 16px;
+        }
 
-.exam-card.shape-arrow {
-    clip-path: polygon(0 0, 88% 0, 100% 50%, 88% 100%, 0 100%);
-    border-radius: 10px;
-}
+        .exam-card.shape-round {
+            border-radius: 50%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
+        .exam-card.shape-arrow {
+            clip-path: polygon(0 0, 88% 0, 100% 50%, 88% 100%, 0 100%);
+            border-radius: 10px;
+        }
 
-.exam-card.shape-hexagonal {
-    border-radius: 10px;
-    clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
-}
+        .exam-card.shape-hexagonal {
+            border-radius: 10px;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+        }
 
+        /* Embed Mode Styles */
+        body.embed-mode .header h1 {
+            font-size: 20px;
+        }
 
-/* Embed Mode Styles */
-body.embed-mode .header h1 {
-    font-size: 20px;
-}
+        body.embed-mode .header p {
+            display: none;
+        }
 
-body.embed-mode .header p {
-    display: none;
-}
+        body.embed-mode .firebase-status {
+            display: none;
+        }
 
-body.embed-mode .firebase-status {
-    display: none;
-}
+        body.embed-mode .fixed-actions {
+            display: none;
+        }
 
-body.embed-mode .fixed-actions {
-    display: none;
-}
+        body.embed-mode {
+            padding-bottom: 20px;
+        }
 
-body.embed-mode {
-    padding-bottom: 20px;
-}
+        .three-dot-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
 
-.three-dot-menu {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-}
+        .three-dot-btn {
+            background: linear-gradient(135deg, #8b6914 0%, #d4af37 50%, #8b6914 100%);
+            backdrop-filter: blur(10px);
+            border: 2px solid #ffd700;
+            color: #1a1410;
+            font-size: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
 
-.three-dot-btn {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border: none;
-    color: white;
-    font-size: 24px;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+        .three-dot-btn:active {
+            transform: scale(0.95);
+        }
 
-.three-dot-btn:active {
-    transform: scale(0.95);
-}
+        .three-dot-dropdown {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: linear-gradient(135deg, #1a1f35 0%, #2d1810 100%);
+            border: 2px solid #8b6914;
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.5);
+            min-width: 180px;
+            overflow: hidden;
+        }
 
-.three-dot-dropdown {
-    display: none;
-    position: absolute;
-    top: 50px;
-    right: 0;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    min-width: 180px;
-    overflow: hidden;
-}
+        .three-dot-dropdown.show {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
 
-.three-dot-dropdown.show {
-    display: block;
-    animation: fadeIn 0.2s ease;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+        .dropdown-item {
+            padding: 12px 20px;
+            color: #ffd700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-.dropdown-item {
-    padding: 12px 20px;
-    color: #333;
-    cursor: pointer;
-    transition: background 0.2s ease;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-    font-size: 14px;
-    font-weight: 600;
-}
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(139, 105, 20, 0.2));
+        }
 
-.dropdown-item:hover {
-    background: rgba(0,0,0,0.1);
-}
+        .dropdown-item:active {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(139, 105, 20, 0.3));
+        }
 
-.dropdown-item:active {
-    background: rgba(0,0,0,0.2);
-}
-   /* Embed Mode - Single Card View */
-body.embed-mode .container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 20px;
-    max-width: 600px;
-}
+        /* Embed Mode - Single Card View */
+        body.embed-mode .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 600px;
+        }
 
-body.embed-mode .exams-grid {
-    display: block;
-    position: relative;
-    width: 100%;
-}
+        body.embed-mode .exams-grid {
+            display: block;
+            position: relative;
+            width: 100%;
+        }
 
-body.embed-mode .exam-card {
-    display: none;
-}
+        body.embed-mode .exam-card {
+            display: none;
+        }
 
-body.embed-mode .exam-card.active {
-    display: block;
-    margin: 0 auto;
-    max-width: 500px;
-}
+        body.embed-mode .exam-card.active {
+            display: block;
+            margin: 0 auto;
+            max-width: 500px;
+        }
 
-body.embed-mode .header {
-    display: none;
-}
+        body.embed-mode .header {
+            display: none;
+        }
 
-.embed-navigation {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    gap: 15px;
-    align-items: center;
-    z-index: 900;
-}
+        .embed-navigation {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            gap: 15px;
+            align-items: center;
+            z-index: 900;
+        }
 
-body.embed-mode .embed-navigation {
-    display: flex;
-}
+        body.embed-mode .embed-navigation {
+            display: flex;
+        }
 
-.nav-btn {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border: none;
-    color: white;
-    font-size: 24px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
+        .nav-btn {
+            background: linear-gradient(135deg, #8b6914 0%, #d4af37 50%, #8b6914 100%);
+            backdrop-filter: blur(10px);
+            border: 2px solid #ffd700;
+            color: #1a1410;
+            font-size: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
 
-.nav-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
-}
+        .nav-btn:hover {
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+            transform: scale(1.05);
+        }
 
-.nav-btn:active {
-    transform: scale(0.95);
-}
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
 
-.nav-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-}
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
 
-.nav-info {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    padding: 8px 16px;
-    border-radius: 20px;
-    color: white;
-    font-size: 14px;
-    font-weight: 600;
-}
+        .nav-info {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(139, 105, 20, 0.3));
+            border: 2px solid #8b6914;
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: #ffd700;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Cinzel', serif;
+        }
 
-body.embed-mode .three-dot-menu {
-    top: 10px;
-    right: 10px;
-}
+        body.embed-mode .three-dot-menu {
+            top: 10px;
+            right: 10px;
+        }
 
-body.embed-mode .delete-btn {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-} 
+        body.embed-mode .delete-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
     </style>
 </head>
 <body class="theme-ocean font-inter" data-digit-style="bold">
@@ -796,63 +1085,66 @@ body.embed-mode .delete-btn {
 
     <div class="container">
         <div class="header">
-            <h1>📚 Exam Countdown Widget</h1>
-            <h3>Stay motivated and track your upcoming exams</h3>
-            <p>by Bikr@m</p>
-            <div class="firebase-status" id="firebaseStatus">🔄 Connecting...</div>
+            <div class="text-5xl mb-3 torch-glow">⚔️</div>
+            <h1>⚔️ EXAM COUNTDOWN ⚔️</h1>
+            <h3>Track thy scholarly quests and conquests</h3>
+            <p>Forged by Bikr@m</p>
+            <div class="firebase-status" id="firebaseStatus">🔄 Connecting to Ancient Scrolls...</div>
         </div>
 
         <div class="exams-grid" id="examsGrid">
             <div class="empty-state">
-                <h2>No Exams Yet! 📝</h2>
-                <p>Click the "➕ Add New Exam" button below to create your first exam countdown.</p>
+                <div class="text-6xl mb-4 torch-glow">📜</div>
+                <h2>No Quests Inscribed! 📝</h2>
+                <p>Press the sacred button below to forge thy first exam countdown upon the scrolls of destiny.</p>
             </div>
         </div>
     </div>
 
     <div class="fixed-actions">
         <button class="btn btn-primary" onclick="openAddModal()">
-            ➕ 
+            ➕ Forge Quest
         </button>
         <button class="btn btn-secondary" onclick="openSettingsModal()">
-            ⚙️ 
-        </button>
-    </div>
-    <!-- Three Dot Menu for Embed Mode -->
-<div class="three-dot-menu" id="threeDotMenu" style="display: none;">
-    <button class="three-dot-btn" onclick="toggleThreeDotMenu()">⋮</button>
-    <div class="three-dot-dropdown" id="threeDotDropdown">
-        <button class="dropdown-item" onclick="openAddModal(); toggleThreeDotMenu();">
-            ➕ Add New Exam
-        </button>
-        <button class="dropdown-item" onclick="openSettingsModal(); toggleThreeDotMenu();">
             ⚙️ Settings
         </button>
     </div>
-</div>
+
+    <!-- Three Dot Menu for Embed Mode -->
+    <div class="three-dot-menu" id="threeDotMenu" style="display: none;">
+        <button class="three-dot-btn" onclick="toggleThreeDotMenu()">⋮</button>
+        <div class="three-dot-dropdown" id="threeDotDropdown">
+            <button class="dropdown-item" onclick="openAddModal(); toggleThreeDotMenu();">
+                ➕ Add Quest
+            </button>
+            <button class="dropdown-item" onclick="openSettingsModal(); toggleThreeDotMenu();">
+                ⚙️ Settings
+            </button>
+        </div>
+    </div>
 
     <!-- Add Exam Modal -->
     <div class="modal" id="addModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>➕ Add New Exam</h2>
+                <h2>➕ Forge New Quest</h2>
                 <button class="close-btn" onclick="closeAddModal()">×</button>
             </div>
             <form id="addExamForm">
                 <div class="form-group">
-                    <label>Exam Name *</label>
-                    <input type="text" id="examName" placeholder="e.g., Final Mathematics Exam" required>
+                    <label>Quest Name *</label>
+                    <input type="text" id="examName" placeholder="e.g., Final Mathematics Conquest" required>
                 </div>
                 <div class="form-group">
-                    <label>Exam Date & Time *</label>
+                    <label>Quest Date & Time *</label>
                     <input type="datetime-local" id="examDate" required>
                 </div>
                 <div class="form-group">
-                    <label>Description (Optional)</label>
-                    <textarea id="examDescription" placeholder="Add any notes or details about this exam..."></textarea>
+                    <label>Chronicle (Optional)</label>
+                    <textarea id="examDescription" placeholder="Inscribe any notes or details about this quest..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Choose Icon</label>
+                    <label>Choose Sigil</label>
                     <div class="emoji-picker">
                         <div class="emoji-option" onclick="selectEmoji('📚')">📚</div>
                         <div class="emoji-option" onclick="selectEmoji('📝')">📝</div>
@@ -870,7 +1162,7 @@ body.embed-mode .delete-btn {
                     <input type="hidden" id="examIcon" value="📚">
                 </div>
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-primary">💾 Save Exam</button>
+                    <button type="submit" class="btn btn-primary">💾 Save Quest</button>
                     <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
                 </div>
             </form>
@@ -881,45 +1173,45 @@ body.embed-mode .delete-btn {
     <div class="modal" id="settingsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>⚙️ Settings</h2>
+                <h2>⚙️ Guild Settings</h2>
                 <button class="close-btn" onclick="closeSettingsModal()">×</button>
             </div>
             
             <div class="firebase-config-section" style="display: none;">
-    <h3>🔥 Firebase Configuration</h3>
-    <p>Configure your Firebase settings to enable data sync across devices.</p>
-    <div class="form-group">
-        <label>API Key</label>
-        <input type="text" id="firebaseApiKey" placeholder="Your Firebase API Key">
-    </div>
-    <div class="form-group">
-        <label>Project ID</label>
-        <input type="text" id="firebaseProjectId" placeholder="Your Firebase Project ID">
-    </div>
-    <div class="form-group">
-        <label>Database URL</label>
-        <input type="text" id="firebaseDatabaseUrl" placeholder="https://your-project.firebaseio.com">
-    </div>
-    <button class="btn btn-primary" onclick="saveFirebaseConfig()" style="width: 100%; justify-content: center;">
-        💾 Save Firebase Config
-    </button>
-</div>
+                <h3>🔥 Firebase Configuration</h3>
+                <p>Configure thy Firebase settings to enable data synchronization across all devices.</p>
+                <div class="form-group">
+                    <label>API Key</label>
+                    <input type="text" id="firebaseApiKey" placeholder="Thy Firebase API Key">
+                </div>
+                <div class="form-group">
+                    <label>Project ID</label>
+                    <input type="text" id="firebaseProjectId" placeholder="Thy Firebase Project ID">
+                </div>
+                <div class="form-group">
+                    <label>Database URL</label>
+                    <input type="text" id="firebaseDatabaseUrl" placeholder="https://thy-project.firebaseio.com">
+                </div>
+                <button class="btn btn-primary" onclick="saveFirebaseConfig()" style="width: 100%; justify-content: center;">
+                    💾 Save Configuration
+                </button>
+            </div>
 
             <div class="form-group">
                 <label>Theme</label>
                 <div class="theme-selector">
-                    <div class="theme-option active" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="changeTheme('ocean')">Ocean</div>
-                    <div class="theme-option" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="changeTheme('sunset')">Sunset</div>
-                    <div class="theme-option" style="background: linear-gradient(135deg, #0ba360 0%, #3cba92 100%);" onclick="changeTheme('forest')">Forest</div>
-                    <div class="theme-option" style="background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);" onclick="changeTheme('midnight')">Midnight</div>
-                    <div class="theme-option" style="background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);" onclick="changeTheme('lavender')">Lavender</div>
+                    <div class="theme-option active" style="background: linear-gradient(135deg, #0a0e1a 0%, #1a1410 100%);" onclick="changeTheme('ocean')">Ocean</div>
+                    <div class="theme-option" style="background: linear-gradient(135deg, #2d1810 0%, #1a0a0a 100%);" onclick="changeTheme('sunset')">Sunset</div>
+                    <div class="theme-option" style="background: linear-gradient(135deg, #0a1a0a 0%, #1a1410 100%);" onclick="changeTheme('forest')">Forest</div>
+                    <div class="theme-option" style="background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 100%);" onclick="changeTheme('midnight')">Midnight</div>
+                    <div class="theme-option" style="background: linear-gradient(135deg, #1a0a2a 0%, #2a1a3a 100%);" onclick="changeTheme('lavender')">Lavender</div>
                 </div>
             </div>
 
             <div class="form-group">
                 <label>Font Style</label>
                 <select id="fontSelect" onchange="changeFont(this.value)">
-                    <option value="inter">Inter (Default)</option>
+                    <option value="inter">Cinzel (Default)</option>
                     <option value="georgia">Georgia</option>
                     <option value="courier">Courier New</option>
                     <option value="arial">Arial</option>
@@ -937,20 +1229,20 @@ body.embed-mode .delete-btn {
                 </select>
             </div>
 
-           <div class="form-group">
-    <label>Card Shape</label>
-    <select id="shapeSelect">
-    <option value="square" selected>Square</option>
-    <option value="rectangle">Rectangle</option>
-    <option value="round">Round</option>
-    <option value="arrow">Arrow</option>
-    <option value="hexagonal">Hexagonal</option>
-</select>
-</div>
+            <div class="form-group">
+                <label>Card Shape</label>
+                <select id="shapeSelect">
+                    <option value="square">Square</option>
+                    <option value="rectangle" selected>Rectangle</option>
+                    <option value="round">Round</option>
+                    <option value="arrow">Arrow</option>
+                    <option value="hexagonal">Hexagonal</option>
+                </select>
+            </div>
 
             <div class="embed-section">
-    <h3>🔗 Embed Link for Notion</h3>
-    <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 10px;">Copy this mobile-optimized link to embed in Notion:</p>
+                <h3>🔗 Embed Rune for Notion</h3>
+                <p>Copy this enchanted link to embed within Notion's sacred pages:</p>
                 <div class="embed-input">
                     <input type="text" id="embedLink" readonly>
                     <button class="copy-btn" onclick="copyEmbedLink()">Copy</button>
@@ -958,9 +1250,9 @@ body.embed-mode .delete-btn {
             </div>
 
             <div class="btn-group" style="margin-top: 30px;">
-    <button class="btn btn-primary" onclick="saveAllSettings()"> Save </button>
-    <button class="btn btn-secondary" onclick="closeSettingsModal()"> Close </button>
-</div>
+                <button class="btn btn-primary" onclick="saveAllSettings()">💾 Save</button>
+                <button class="btn btn-secondary" onclick="closeSettingsModal()">Close</button>
+            </div>
         </div>
     </div>
 
@@ -977,87 +1269,88 @@ body.embed-mode .delete-btn {
         let firebaseConfigured = false;
         let exams = [];
         let selectedIcon = '📚';
-       let settings = {
-    theme: 'ocean',
-    font: 'inter',
-    digitStyle: 'bold',
-    cardShape: 'rectangle'
-};
+        let settings = {
+            theme: 'ocean',
+            font: 'inter',
+            digitStyle: 'bold',
+            cardShape: 'rectangle'
+        };
         let currentExamIndex = 0;
 
-function updateEmbedNavigation() {
-    // Remove existing navigation if present
-    let navContainer = document.getElementById('embedNavigation');
-    if (navContainer) {
-        navContainer.remove();
-    }
-    
-    // Create navigation only if there are exams
-    if (exams.length > 0) {
-        navContainer = document.createElement('div');
-        navContainer.id = 'embedNavigation';
-        navContainer.className = 'embed-navigation';
-        navContainer.innerHTML = `
-            <button class="nav-btn" id="prevBtn" onclick="navigateExam(-1)">◀</button>
-            <div class="nav-info">
-                <span id="examCounter">${currentExamIndex + 1} / ${exams.length}</span>
-            </div>
-            <button class="nav-btn" id="nextBtn" onclick="navigateExam(1)">▶</button>
-        `;
-        document.body.appendChild(navContainer);
-        
-        // Update button states
-        updateNavigationButtons();
-    }
-}
-
-function navigateExam(direction) {
-    playSound('clickSound');
-    
-    const newIndex = currentExamIndex + direction;
-    
-    if (newIndex >= 0 && newIndex < exams.length) {
-        // Hide current card
-        const currentCard = document.querySelector('.exam-card.active');
-        if (currentCard) {
-            currentCard.classList.remove('active');
+        function updateEmbedNavigation() {
+            // Remove existing navigation if present
+            let navContainer = document.getElementById('embedNavigation');
+            if (navContainer) {
+                navContainer.remove();
+            }
+            
+            // Create navigation only if there are exams
+            if (exams.length > 0) {
+                navContainer = document.createElement('div');
+                navContainer.id = 'embedNavigation';
+                navContainer.className = 'embed-navigation';
+                navContainer.innerHTML = `
+                    <button class="nav-btn" id="prevBtn" onclick="navigateExam(-1)">◀</button>
+                    <div class="nav-info">
+                        <span id="examCounter">${currentExamIndex + 1} / ${exams.length}</span>
+                    </div>
+                    <button class="nav-btn" id="nextBtn" onclick="navigateExam(1)">▶</button>
+                `;
+                document.body.appendChild(navContainer);
+                
+                // Update button states
+                updateNavigationButtons();
+            }
         }
-        
-        // Update index
-        currentExamIndex = newIndex;
-        
-        // Show new card
-        const allCards = document.querySelectorAll('.exam-card');
-        if (allCards[currentExamIndex]) {
-            allCards[currentExamIndex].classList.add('active');
-        }
-        
-        // Update counter and buttons
-        document.getElementById('examCounter').textContent = `${currentExamIndex + 1} / ${exams.length}`;
-        updateNavigationButtons();
-    }
-}
 
-function updateNavigationButtons() {
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    
-    if (prevBtn) {
-        prevBtn.disabled = currentExamIndex === 0;
-        prevBtn.style.pointerEvents = currentExamIndex === 0 ? 'none' : 'auto';
-    }
-    
-    if (nextBtn) {
-        nextBtn.disabled = currentExamIndex === exams.length - 1;
-        nextBtn.style.pointerEvents = currentExamIndex === exams.length - 1 ? 'none' : 'auto';
-    }
-}
+        function navigateExam(direction) {
+            playSound('clickSound');
+            
+            const newIndex = currentExamIndex + direction;
+            
+            if (newIndex >= 0 && newIndex < exams.length) {
+                // Hide current card
+                const currentCard = document.querySelector('.exam-card.active');
+                if (currentCard) {
+                    currentCard.classList.remove('active');
+                }
+                
+                // Update index
+                currentExamIndex = newIndex;
+                
+                // Show new card
+                const allCards = document.querySelectorAll('.exam-card');
+                if (allCards[currentExamIndex]) {
+                    allCards[currentExamIndex].classList.add('active');
+                }
+                
+                // Update counter and buttons
+                document.getElementById('examCounter').textContent = `${currentExamIndex + 1} / ${exams.length}`;
+                updateNavigationButtons();
+            }
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (prevBtn) {
+                prevBtn.disabled = currentExamIndex === 0;
+                prevBtn.style.pointerEvents = currentExamIndex === 0 ? 'none' : 'auto';
+            }
+            
+            if (nextBtn) {
+                nextBtn.disabled = currentExamIndex === exams.length - 1;
+                nextBtn.style.pointerEvents = currentExamIndex === exams.length - 1 ? 'none' : 'auto';
+            }
+        }
 
         // Sound effects
         function playSound(soundId) {
             try {
                 const sound = document.getElementById(soundId);
                 sound.currentTime = 0;
+                sound.volume = 0.3;
                 sound.play().catch(() => {});
             } catch (e) {}
         }
@@ -1073,28 +1366,27 @@ function updateNavigationButtons() {
                 database = firebase.database();
                 firebaseConfigured = true;
                 
-                updateFirebaseStatus('✅ Connected', 'connected');
+                updateFirebaseStatus('✅ Connected to the Scrolls', 'connected');
                 
                 // Listen for changes
-                // Listen for changes
-database.ref('exams').on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-        exams = Object.values(data);
-        exams.sort((a, b) => new Date(a.date) - new Date(b.date));
-        renderExams();
-        
-        // Ensure navigation is created for embed mode
-        if (document.body.classList.contains('embed-mode')) {
-            setTimeout(() => {
-                updateEmbedNavigation();
-            }, 200);
-        }
-    } else {
-        exams = [];
-        renderExams();
-    }
-});
+                database.ref('exams').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        exams = Object.values(data);
+                        exams.sort((a, b) => new Date(a.date) - new Date(b.date));
+                        renderExams();
+                        
+                        // Ensure navigation is created for embed mode
+                        if (document.body.classList.contains('embed-mode')) {
+                            setTimeout(() => {
+                                updateEmbedNavigation();
+                            }, 200);
+                        }
+                    } else {
+                        exams = [];
+                        renderExams();
+                    }
+                });
 
                 database.ref('settings').on('value', (snapshot) => {
                     const data = snapshot.val();
@@ -1107,7 +1399,7 @@ database.ref('exams').on('value', (snapshot) => {
                 return true;
             } catch (error) {
                 console.error('Firebase initialization error:', error);
-                updateFirebaseStatus('❌ Connection failed', 'error');
+                updateFirebaseStatus('❌ Connection to scrolls failed', 'error');
                 firebaseConfigured = false;
                 return false;
             }
@@ -1195,91 +1487,90 @@ database.ref('exams').on('value', (snapshot) => {
         }
 
         function loadFromLocalStorage() {
-    try {
-        const savedExams = localStorage.getItem('exams');
-        if (savedExams) {
-            exams = JSON.parse(savedExams);
-            renderExams();
-            
-            // Ensure navigation is created for embed mode
-            if (document.body.classList.contains('embed-mode') && exams.length > 0) {
-                setTimeout(() => {
-                    updateEmbedNavigation();
-                }, 200);
+            try {
+                const savedExams = localStorage.getItem('exams');
+                if (savedExams) {
+                    exams = JSON.parse(savedExams);
+                    renderExams();
+                    
+                    // Ensure navigation is created for embed mode
+                    if (document.body.classList.contains('embed-mode') && exams.length > 0) {
+                        setTimeout(() => {
+                            updateEmbedNavigation();
+                        }, 200);
+                    }
+                }
+
+                const savedSettings = localStorage.getItem('examSettings');
+                if (savedSettings) {
+                    settings = JSON.parse(savedSettings);
+                    applySettings();
+                }
+            } catch (e) {
+                console.error('Error loading from localStorage:', e);
             }
         }
 
-        const savedSettings = localStorage.getItem('examSettings');
-        if (savedSettings) {
-            settings = JSON.parse(savedSettings);
-            applySettings();
-        }
-    } catch (e) {
-        console.error('Error loading from localStorage:', e);
-    }
-}
-
         // Initialize on page load
-       // Initialize on page load
-window.addEventListener('DOMContentLoaded', () => {
-    // Your Firebase Configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyAiTYmQYLn44LoSuaJSXq1s6gG-65CXM5k",
-        authDomain: "exam-countdown-widget.firebaseapp.com",
-        databaseURL: "https://exam-countdown-widget-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "exam-countdown-widget",
-        storageBucket: "exam-countdown-widget.firebasestorage.app",
-        messagingSenderId: "884414746027",
-        appId: "1:884414746027:web:d0621f7093b6f0182156ee"
-    };
+        window.addEventListener('DOMContentLoaded', () => {
+            // Your Firebase Configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyAiTYmQYLn44LoSuaJSXq1s6gG-65CXM5k",
+                authDomain: "exam-countdown-widget.firebaseapp.com",
+                databaseURL: "https://exam-countdown-widget-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "exam-countdown-widget",
+                storageBucket: "exam-countdown-widget.firebasestorage.app",
+                messagingSenderId: "884414746027",
+                appId: "1:884414746027:web:d0621f7093b6f0182156ee"
+            };
 
-    // Check embed mode FIRST
-    checkEmbedMode();
+            // Check embed mode FIRST
+            checkEmbedMode();
 
-    // Auto-initialize Firebase with your config
-    initializeFirebase(firebaseConfig);
+            // Auto-initialize Firebase with your config
+            initializeFirebase(firebaseConfig);
 
-    // Pre-fill the settings form
-    document.getElementById('firebaseApiKey').value = firebaseConfig.apiKey;
-    document.getElementById('firebaseProjectId').value = firebaseConfig.projectId;
-    document.getElementById('firebaseDatabaseUrl').value = firebaseConfig.databaseURL;
+            // Pre-fill the settings form
+            document.getElementById('firebaseApiKey').value = firebaseConfig.apiKey;
+            document.getElementById('firebaseProjectId').value = firebaseConfig.projectId;
+            document.getElementById('firebaseDatabaseUrl').value = firebaseConfig.databaseURL;
 
-    // Load from localStorage as fallback
-    loadFromLocalStorage();
-    
-    updateCountdowns();
-    setInterval(updateCountdowns, 1000);
-    updateEmbedLink();
-    
-    // Set min datetime to now
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById('examDate').min = now.toISOString().slice(0, 16);
-});
+            // Load from localStorage as fallback
+            loadFromLocalStorage();
+            
+            updateCountdowns();
+            setInterval(updateCountdowns, 1000);
+            updateEmbedLink();
+            
+            // Set min datetime to now
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('examDate').min = now.toISOString().slice(0, 16);
+        });
 
-       function applySettings() {
-    const isEmbed = document.body.classList.contains('embed-mode');
-    document.body.className = `theme-${settings.theme} font-${settings.font}`;
-    if (isEmbed) {
-        document.body.classList.add('embed-mode'); // Re-add embed mode class
-    }
-    document.body.setAttribute('data-digit-style', settings.digitStyle);
-    document.getElementById('fontSelect').value = settings.font;
-    document.getElementById('digitSelect').value = settings.digitStyle;
-    document.getElementById('shapeSelect').value = settings.cardShape;
-    
-    // Update theme selector
-    document.querySelectorAll('.theme-option').forEach(opt => {
-        opt.classList.remove('active');
-    });
-    const themeIndex = ['ocean', 'sunset', 'forest', 'midnight', 'lavender'].indexOf(settings.theme);
-    if (themeIndex >= 0) {
-        document.querySelectorAll('.theme-option')[themeIndex].classList.add('active');
-    }
-    
-    // Apply card shapes
-    renderExams();
-}
+        function applySettings() {
+            const isEmbed = document.body.classList.contains('embed-mode');
+            document.body.className = `theme-${settings.theme} font-${settings.font}`;
+            if (isEmbed) {
+                document.body.classList.add('embed-mode'); // Re-add embed mode class
+            }
+            document.body.setAttribute('data-digit-style', settings.digitStyle);
+            document.getElementById('fontSelect').value = settings.font;
+            document.getElementById('digitSelect').value = settings.digitStyle;
+            document.getElementById('shapeSelect').value = settings.cardShape;
+            
+            // Update theme selector
+            document.querySelectorAll('.theme-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            const themeIndex = ['ocean', 'sunset', 'forest', 'midnight', 'lavender'].indexOf(settings.theme);
+            if (themeIndex >= 0) {
+                document.querySelectorAll('.theme-option')[themeIndex].classList.add('active');
+            }
+            
+            // Apply card shapes
+            renderExams();
+        }
 
         function openAddModal() {
             playSound('clickSound');
@@ -1309,7 +1600,8 @@ window.addEventListener('DOMContentLoaded', () => {
             selectedIcon = emoji;
             document.getElementById('examIcon').value = emoji;
             document.querySelectorAll('.emoji-option').forEach(opt => {
-                opt.style.background = opt.textContent === emoji ? 'rgba(255,255,255,0.3)' : '';
+                opt.style.background = opt.textContent === emoji ? 'linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(139, 105, 20, 0.3))' : '';
+                opt.style.borderColor = opt.textContent === emoji ? '#d4af37' : 'transparent';
             });
         }
 
@@ -1327,13 +1619,13 @@ window.addEventListener('DOMContentLoaded', () => {
             const description = document.getElementById('examDescription').value.trim();
             
             if (!name || !dateStr) {
-                showNotification('Please fill in all required fields', 'error');
+                showNotification('Please fill in all required fields ⚠️', 'error');
                 return;
             }
 
             const examDate = new Date(dateStr);
             if (examDate < new Date()) {
-                if (!confirm('This date is in the past. Do you still want to add it?')) {
+                if (!confirm('This date is in the past. Dost thou still wish to inscribe it?')) {
                     return;
                 }
             }
@@ -1354,110 +1646,111 @@ window.addEventListener('DOMContentLoaded', () => {
             renderExams();
             closeAddModal();
             playSound('successSound');
-            showNotification('Exam added successfully! 🎉');
+            showNotification('Quest forged successfully! ⚔️');
         });
 
         function deleteExam(id) {
-    if (confirm('Are you sure you want to delete this exam?')) {
-        playSound('clickSound');
-        exams = exams.filter(exam => exam.id !== id);
-        
-        // Adjust current index if needed
-        if (document.body.classList.contains('embed-mode')) {
-            if (currentExamIndex >= exams.length) {
-                currentExamIndex = Math.max(0, exams.length - 1);
+            if (confirm('Art thou certain thou wishest to erase this quest from the scrolls?')) {
+                playSound('clickSound');
+                exams = exams.filter(exam => exam.id !== id);
+                
+                // Adjust current index if needed
+                if (document.body.classList.contains('embed-mode')) {
+                    if (currentExamIndex >= exams.length) {
+                        currentExamIndex = Math.max(0, exams.length - 1);
+                    }
+                }
+                
+                saveExamsToFirebase();
+                renderExams();
+                showNotification('Quest erased from scrolls 📜');
+                
+                // Update navigation if in embed mode
+                if (document.body.classList.contains('embed-mode') && exams.length > 0) {
+                    setTimeout(() => {
+                        updateEmbedNavigation();
+                    }, 100);
+                }
             }
         }
-        
-        saveExamsToFirebase();
-        renderExams();
-        showNotification('Exam deleted');
-        
-        // Update navigation if in embed mode
-        if (document.body.classList.contains('embed-mode') && exams.length > 0) {
-            setTimeout(() => {
-                updateEmbedNavigation();
-            }, 100);
-        }
-    }
-}
-       function renderExams() {
-    const grid = document.getElementById('examsGrid');
-    
-    if (exams.length === 0) {
-        grid.innerHTML = `
-            <div class="empty-state">
-                <h2>No Exams Yet! 📝</h2>
-                <p>Click the "➕ Add New Exam" button below to create your first exam countdown.</p>
-            </div>
-        `;
-        // Remove navigation if no exams
-        const navContainer = document.getElementById('embedNavigation');
-        if (navContainer) {
-            navContainer.remove();
-        }
-        return;
-    }
 
-    const isEmbedMode = document.body.classList.contains('embed-mode');
-    
-    grid.innerHTML = exams.map((exam, index) => {
-        const timeData = getTimeRemaining(exam.date);
-        const progress = getProgress(exam.createdAt, exam.date);
-        const activeClass = (isEmbedMode && index === currentExamIndex) ? 'active' : '';
-        
-        return `
-            <div class="exam-card shape-${settings.cardShape} ${activeClass}" data-exam-id="${exam.id}" data-exam-index="${index}">
-                <div class="exam-header">
-                    <div style="display: flex; align-items: flex-start;">
-                        <div class="exam-icon">${exam.icon}</div>
-                        <div class="exam-info">
-                            <div class="exam-name">${exam.name}</div>
-                            <div class="exam-date">${formatDate(exam.date)}</div>
-                            ${exam.description ? `<div class="exam-description">${exam.description}</div>` : ''}
+        function renderExams() {
+            const grid = document.getElementById('examsGrid');
+            
+            if (exams.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="text-6xl mb-4 torch-glow">📜</div>
+                        <h2>No Quests Inscribed! 📝</h2>
+                        <p>Press the sacred button below to forge thy first exam countdown upon the scrolls of destiny.</p>
+                    </div>
+                `;
+                // Remove navigation if no exams
+                const navContainer = document.getElementById('embedNavigation');
+                if (navContainer) {
+                    navContainer.remove();
+                }
+                return;
+            }
+
+            const isEmbedMode = document.body.classList.contains('embed-mode');
+            
+            grid.innerHTML = exams.map((exam, index) => {
+                const timeData = getTimeRemaining(exam.date);
+                const progress = getProgress(exam.createdAt, exam.date);
+                const activeClass = (isEmbedMode && index === currentExamIndex) ? 'active' : '';
+                
+                return `
+                    <div class="exam-card shape-${settings.cardShape} ${activeClass}" data-exam-id="${exam.id}" data-exam-index="${index}">
+                        <div class="exam-header">
+                            <div style="display: flex; align-items: flex-start;">
+                                <div class="exam-icon">${exam.icon}</div>
+                                <div class="exam-info">
+                                    <div class="exam-name">${exam.name}</div>
+                                    <div class="exam-date">${formatDate(exam.date)}</div>
+                                    ${exam.description ? `<div class="exam-description">${exam.description}</div>` : ''}
+                                </div>
+                            </div>
+                            <button class="delete-btn" onclick="deleteExam(${exam.id})">🗑️</button>
+                        </div>
+                        
+                        <div class="countdown">
+                            <div class="countdown-item">
+                                <span class="countdown-value">${timeData.days}</span>
+                                <div class="countdown-label">Days</div>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="countdown-value">${timeData.hours}</span>
+                                <div class="countdown-label">Hours</div>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="countdown-value">${timeData.minutes}</span>
+                                <div class="countdown-label">Minutes</div>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="countdown-value">${timeData.seconds}</span>
+                                <div class="countdown-label">Seconds</div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-container">
+                            <div class="progress-bar-wrapper">
+                                <div class="progress-bar" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="progress-text">${progress}% time elapsed</div>
                         </div>
                     </div>
-                    <button class="delete-btn" onclick="deleteExam(${exam.id})">🗑️</button>
-                </div>
-                
-                <div class="countdown">
-                    <div class="countdown-item">
-                        <span class="countdown-value">${timeData.days}</span>
-                        <div class="countdown-label">Days</div>
-                    </div>
-                    <div class="countdown-item">
-                        <span class="countdown-value">${timeData.hours}</span>
-                        <div class="countdown-label">Hours</div>
-                    </div>
-                    <div class="countdown-item">
-                        <span class="countdown-value">${timeData.minutes}</span>
-                        <div class="countdown-label">Minutes</div>
-                    </div>
-                    <div class="countdown-item">
-                        <span class="countdown-value">${timeData.seconds}</span>
-                        <div class="countdown-label">Seconds</div>
-                    </div>
-                </div>
-                
-                <div class="progress-container">
-                    <div class="progress-bar-wrapper">
-                        <div class="progress-bar" style="width: ${progress}%"></div>
-                    </div>
-                    <div class="progress-text">${progress}% time elapsed</div>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    // Add navigation for embed mode - MUST BE AFTER GRID IS RENDERED
-    if (isEmbedMode && exams.length > 0) {
-        // Small delay to ensure DOM is ready
-        setTimeout(() => {
-            updateEmbedNavigation();
-        }, 100);
-    }
-}
- 
+                `;
+            }).join('');
+            
+            // Add navigation for embed mode - MUST BE AFTER GRID IS RENDERED
+            if (isEmbedMode && exams.length > 0) {
+                // Small delay to ensure DOM is ready
+                setTimeout(() => {
+                    updateEmbedNavigation();
+                }, 100);
+            }
+        }
 
         function getTimeRemaining(dateStr) {
             const examDate = new Date(dateStr);
@@ -1478,24 +1771,23 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         function getProgress(createdAt, examDate) {
-    if (!createdAt) return 0; // Handle missing createdAt
-    
-    const start = new Date(createdAt);
-    const end = new Date(examDate);
-    const now = new Date();
-    
-    // Validate dates
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
-    
-    const total = end.getTime() - start.getTime();
-    const elapsed = now.getTime() - start.getTime();
-    
-    if (total <= 0) return 100; // If exam is in the past relative to creation
-    if (elapsed <= 0) return 0;
-    if (elapsed >= total) return 100;
-    
-    return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
-}
+            if (!createdAt) return 0;
+            
+            const start = new Date(createdAt);
+            const end = new Date(examDate);
+            const now = new Date();
+            
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+            
+            const total = end.getTime() - start.getTime();
+            const elapsed = now.getTime() - start.getTime();
+            
+            if (total <= 0) return 100;
+            if (elapsed <= 0) return 0;
+            if (elapsed >= total) return 100;
+            
+            return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
+        }
 
         function formatDate(dateStr) {
             const date = new Date(dateStr);
@@ -1558,10 +1850,10 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         function updateEmbedLink() {
-    const baseUrl = window.location.href.split('?')[0];
-    const embedLink = baseUrl + '?embed=true';
-    document.getElementById('embedLink').value = embedLink;
-}
+            const baseUrl = window.location.href.split('?')[0];
+            const embedLink = baseUrl + '?embed=true';
+            document.getElementById('embedLink').value = embedLink;
+        }
 
         function copyEmbedLink() {
             playSound('clickSound');
@@ -1571,12 +1863,12 @@ window.addEventListener('DOMContentLoaded', () => {
             
             try {
                 document.execCommand('copy');
-                showNotification('Link copied to clipboard! 📋');
+                showNotification('Rune copied to thy clipboard! 📋');
             } catch (err) {
                 navigator.clipboard.writeText(input.value).then(() => {
-                    showNotification('Link copied to clipboard! 📋');
+                    showNotification('Rune copied to thy clipboard! 📋');
                 }).catch(() => {
-                    showNotification('Failed to copy link', 'error');
+                    showNotification('Failed to copy rune ⚠️', 'error');
                 });
             }
         }
@@ -1584,7 +1876,15 @@ window.addEventListener('DOMContentLoaded', () => {
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
             notification.textContent = message;
-            notification.style.background = type === 'error' ? '#ef4444' : '#4ade80';
+            if (type === 'error') {
+                notification.style.background = 'linear-gradient(135deg, #8b2914 0%, #d43737 100%)';
+                notification.style.color = '#ffcccc';
+                notification.style.borderColor = '#ff4444';
+            } else {
+                notification.style.background = 'linear-gradient(135deg, #8b6914 0%, #d4af37 100%)';
+                notification.style.color = '#1a1410';
+                notification.style.borderColor = '#ffd700';
+            }
             notification.classList.add('show');
             
             setTimeout(() => {
@@ -1610,51 +1910,51 @@ window.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
+
         // Save all settings at once
-function saveAllSettings() {
-    playSound('clickSound');
-    
-    // Extract theme from class list more safely
-    const classList = document.body.className.split(' ');
-    const themeClass = classList.find(c => c.startsWith('theme-'));
-    if (themeClass) {
-        settings.theme = themeClass.replace('theme-', '');
-    }
-    
-    settings.font = document.getElementById('fontSelect').value;
-    settings.digitStyle = document.getElementById('digitSelect').value;
-    settings.cardShape = document.getElementById('shapeSelect').value;
-    
-    saveSettingsToFirebase();
-    applySettings();
-    showNotification('Settings saved successfully! ✅');
-}
+        function saveAllSettings() {
+            playSound('clickSound');
+            
+            const classList = document.body.className.split(' ');
+            const themeClass = classList.find(c => c.startsWith('theme-'));
+            if (themeClass) {
+                settings.theme = themeClass.replace('theme-', '');
+            }
+            
+            settings.font = document.getElementById('fontSelect').value;
+            settings.digitStyle = document.getElementById('digitSelect').value;
+            settings.cardShape = document.getElementById('shapeSelect').value;
+            
+            saveSettingsToFirebase();
+            applySettings();
+            showNotification('Settings saved to the scrolls! ✅');
+        }
 
-// Three dot menu toggle
-function toggleThreeDotMenu() {
-    playSound('clickSound');
-    const dropdown = document.getElementById('threeDotDropdown');
-    dropdown.classList.toggle('show');
-}
+        // Three dot menu toggle
+        function toggleThreeDotMenu() {
+            playSound('clickSound');
+            const dropdown = document.getElementById('threeDotDropdown');
+            dropdown.classList.toggle('show');
+        }
 
-// Close three dot menu when clicking outside
-document.addEventListener('click', (e) => {
-    const menu = document.getElementById('threeDotMenu');
-    const dropdown = document.getElementById('threeDotDropdown');
-    if (menu && !menu.contains(e.target)) {
-        dropdown.classList.remove('show');
-    }
-});
+        // Close three dot menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('threeDotMenu');
+            const dropdown = document.getElementById('threeDotDropdown');
+            if (menu && !menu.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
 
-// Check for embed mode
-function checkEmbedMode() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('embed') === 'true') {
-        document.body.classList.add('embed-mode');
-        document.getElementById('threeDotMenu').style.display = 'block';
-        console.log('Embed mode activated'); // Debug log
-    }
-}
+        // Check for embed mode
+        function checkEmbedMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('embed') === 'true') {
+                document.body.classList.add('embed-mode');
+                document.getElementById('threeDotMenu').style.display = 'block';
+                console.log('Embed mode activated');
+            }
+        }
     </script>
 </body>
 </html>

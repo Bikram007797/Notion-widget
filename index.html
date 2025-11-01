@@ -1761,16 +1761,16 @@ if (document.body.classList.contains('embed-mode') && exams.length > 0) {
                 return `
                     <div class="exam-card shape-${settings.cardShape} ${activeClass}" data-exam-id="${exam.id}" data-exam-index="${index}">
                         <div class="exam-header">
-                            <div style="display: flex; align-items: flex-start;">
-                                <div class="exam-icon">${exam.icon}</div>
-                                <div class="exam-info">
-                                    <div class="exam-name">${exam.name}</div>
-                                    <div class="exam-date">${formatDate(exam.date)}</div>
-                                    ${exam.description ? `<div class="exam-description">${exam.description}</div>` : ''}
-                                </div>
-                            </div>
-                        
-                        </div>
+    <div style="display: flex; align-items: flex-start;">
+        <div class="exam-icon">${exam.icon}</div>
+        <div class="exam-info">
+            <div class="exam-name">${exam.name}</div>
+            <div class="exam-date">${formatDate(exam.date)}</div>
+            ${exam.description ? `<div class="exam-description">${exam.description}</div>` : ''}
+        </div>
+    </div>
+    ${!isEmbedMode ? `<button class="delete-btn" onclick="deleteExam(${exam.id})">✕</button>` : ''}
+</div>
                         
                         <div class="countdown">
                             <div class="countdown-item">

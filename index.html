@@ -346,6 +346,7 @@
             position: relative;
             z-index: 1;
         }
+        
 
         .countdown-item {
             text-align: center;
@@ -981,6 +982,7 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
+            padding-bottom: 80px;
             max-width: 600px;
         }
 
@@ -997,6 +999,7 @@
         body.embed-mode .exam-card.active {
             display: block;
             margin: 0 auto;
+            margin-bottom: 20px;
             max-width: 500px;
         }
 
@@ -1007,8 +1010,8 @@
        .embed-navigation {
     display: none;
     position: relative; 
-    margin-top: 15px;    
-    padding: 10px 0;     
+    margin-top: 20px;    
+    padding: 12px 0;     
     gap: 10px;           
     align-items: center;
     justify-content: center;  
@@ -1072,6 +1075,28 @@
             top: 10px;
             left: 10px;
         }
+        /* Mobile responsiveness for countdown */
+@media (max-width: 500px) {
+    .countdown {
+        gap: 6px;
+    }
+    
+    .countdown-item {
+        padding: 10px 6px;
+    }
+    
+    .countdown-value {
+        font-size: clamp(24px, 5vw, 36px);
+    }
+    
+    .countdown-label {
+        font-size: 10px;
+    }
+    
+    .exam-card {
+        padding: 20px 15px;
+    }
+}
     </style>
 </head>
 <body class="theme-ocean font-inter" data-digit-style="bold">

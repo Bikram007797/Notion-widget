@@ -996,26 +996,27 @@
             display: none;
         }
 
-        body.embed-mode .exam-card.active {
-            display: block;
-            margin: 0 auto;
-            margin-bottom: 20px;
-            max-width: 500px;
-        }
-
+       body.embed-mode .exam-card.active {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    max-width: 500px;
+}
         body.embed-mode .header {
             display: none;
         }
 
-       .embed-navigation {
+   .embed-navigation {
     display: none;
-    position: relative; 
-    margin-top: 20px;    
-    padding: 12px 0;     
-    gap: 10px;           
+    padding: 12px 15px;
+    gap: 10px;
     align-items: center;
-    justify-content: center;  
-    z-index: 900;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(26, 31, 53, 0.6), rgba(45, 24, 16, 0.6));
+    border-top: 2px solid #8b6914;
+    margin-top: 15px;
+    border-radius: 0 0 17px 17px;
 }
         body.embed-mode .embed-navigation {
             display: flex;
@@ -1323,7 +1324,10 @@
                     </div>
                     <button class="nav-btn" id="nextBtn" onclick="navigateExam(1)">▶</button>
                 `;
-                document.body.appendChild(navContainer);
+                const activeCard = document.querySelector('.exam-card.active');
+if (activeCard) {
+    activeCard.appendChild(navContainer);
+}
                 
                 // Update button states
                 updateNavigationButtons();

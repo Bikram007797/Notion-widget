@@ -895,9 +895,14 @@
             display: none;
         }
 
-        body.embed-mode {
-            padding-bottom: 20px;
-        }
+       body.embed-mode {
+    padding: 0;
+    margin: 0;
+    min-height: auto;
+    height: auto;
+    overflow: hidden;
+}
+
 
         .three-dot-menu {
             position: fixed;
@@ -977,15 +982,15 @@
 
         /* Embed Mode - Single Card View */
         body.embed-mode .container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            padding-bottom: 80px;
-            max-width: 600px;
-        }
-
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: auto;
+    height: auto;
+    padding: 20px;
+    padding-bottom: 20px;
+    max-width: 600px;
+}
         body.embed-mode .exams-grid {
             display: block;
             position: relative;
@@ -1333,33 +1338,62 @@ if (activeCard) {
                 updateNavigationButtons();
             }
         }
+        function adjustEmbedHeight() {
+    if (!document.body.classList.contains('embed-mode')) return;
+    
+    const activeCard = document.querySelector('.exam-card.active');
+    if (activeCard) {
+        // Wait for card to fully render
+        setTimeout(() => {
+            const cardHeight = activeCard.offsetHeight;
+            const container = document.querySelector('.container');
+            const containerPadding = 40; // 20px top + 20px bottom
+            const totalHeight = cardHeight + containerPadding;
+            
+            // Set body height to match content
+            document.body.style.height = totalHeight + 'px';
+            document.documentElement.style.height = totalHeight + 'px';
+            
+            // Send height to parent (Notion)
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'resize',
+                    height: totalHeight
+                }, '*');
+            }
+        }, 100);
+    }
+}
 
         function navigateExam(direction) {
-            playSound('clickSound');
-            
-            const newIndex = currentExamIndex + direction;
-            
-            if (newIndex >= 0 && newIndex < exams.length) {
-                // Hide current card
-                const currentCard = document.querySelector('.exam-card.active');
-                if (currentCard) {
-                    currentCard.classList.remove('active');
-                }
-                
-                // Update index
-                currentExamIndex = newIndex;
-                
-                // Show new card
-                const allCards = document.querySelectorAll('.exam-card');
-                if (allCards[currentExamIndex]) {
-                    allCards[currentExamIndex].classList.add('active');
-                }
-                
-                // Update counter and buttons
-                document.getElementById('examCounter').textContent = `${currentExamIndex + 1} / ${exams.length}`;
-                updateNavigationButtons();
-            }
+    playSound('clickSound');
+    
+    const newIndex = currentExamIndex + direction;
+    
+    if (newIndex >= 0 && newIndex < exams.length) {
+        // Hide current card
+        const currentCard = document.querySelector('.exam-card.active');
+        if (currentCard) {
+            currentCard.classList.remove('active');
         }
+        
+        // Update index
+        currentExamIndex = newIndex;
+        
+        // Show new card
+        const allCards = document.querySelectorAll('.exam-card');
+        if (allCards[currentExamIndex]) {
+            allCards[currentExamIndex].classList.add('active');
+        }
+        
+        // Update counter and buttons
+        document.getElementById('examCounter').textContent = `${currentExamIndex + 1} / ${exams.length}`;
+        updateNavigationButtons();
+        
+        // ADD THIS LINE:
+        adjustEmbedHeight();
+    }
+}
 
         function updateNavigationButtons() {
             const prevBtn = document.getElementById('prevBtn');
@@ -1577,6 +1611,14 @@ if (activeCard) {
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('examDate').min = now.toISOString().slice(0, 16);
+            // Ensure navigation is created for embed mode
+if (document.body.classList.contains('embed-mode') && exams.length > 0) {
+    setTimeout(() => {
+        updateEmbedNavigation();
+        // ADD THIS LINE:
+        adjustEmbedHeight();
+    }, 200);
+}
         });
 
         function applySettings() {
@@ -1787,6 +1829,7 @@ if (activeCard) {
                 // Small delay to ensure DOM is ready
                 setTimeout(() => {
                     updateEmbedNavigation();
+                    adjustEmbedHeight();
                 }, 100);
             }
         }
